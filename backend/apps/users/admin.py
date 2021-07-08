@@ -30,6 +30,11 @@ class CustomUserAdmin(UserAdmin):
         }),
     )
 
+    add_fieldsets = (
+        (None, {'classes': ('wide',), 'fields': ('email', 'username', 'first_name', 'last_name',
+         'password1', 'password2')}),
+    )
+
     def get_form(self, request, obj=None, **kwargs):
         form = super().get_form(request, obj, **kwargs)
         is_superuser = request.user.is_superuser
