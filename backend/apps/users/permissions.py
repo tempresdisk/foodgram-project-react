@@ -7,3 +7,9 @@ class AllowAnyPOST(IsAuthenticated):
             return True
         else:
             return super().has_permission(request, view)
+
+
+class CurrentUserOrAdmin(IsAuthenticated):
+    def has_object_permission(self, request, view, obj):
+        user = request.user
+        return user.is_superuser or obj.pk == user.pk
