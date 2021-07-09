@@ -15,7 +15,6 @@ def admin(django_user_model):
 
 @pytest.fixture
 def token(admin):
-    from djoser import utils
     from djoser.conf import settings
 
     token, _ = settings.TOKEN_MODEL.objects.get_or_create(user=admin)
