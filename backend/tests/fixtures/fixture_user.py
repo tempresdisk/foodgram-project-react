@@ -3,10 +3,14 @@ import pytest
 
 @pytest.fixture
 def admin(django_user_model):
-    return django_user_model.objects.create_superuser(
-        username='TestUser', email='admin@foodgram.fake', password='1234567',
-        first_name='Test', last_name='User'
+    django_user_model.objects.create_superuser(
+        username='TestUser', email='admin@foodgram.fake', password='1234567'
     )
+    admin = django_user_model.objects.get(username='TestUser')
+    admin.first_name = 'Test'
+    admin.last_name = 'User'
+    admin.save()
+    return admin
 
 
 @pytest.fixture

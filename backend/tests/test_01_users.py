@@ -46,7 +46,7 @@ class Test01UserAPI:
     def test_04_users_post_login(self, client, admin):
         data = {
             'username': admin.username,
-            'password': admin.password
+            'password': '1234567'
         }
         response = client.post('/api/auth/token/login/', data=data)
         assert response.status_code != 404, (
@@ -57,8 +57,8 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_05_users_post_logout(self, user_client, admin):
-        response = user_client.post('/api/auth/users/logout/')
+    def test_05_users_post_logout(self, user_client):
+        response = user_client.post('/api/auth/token/logout/')
         assert response.status_code != 404, (
             'Страница `/api/auth/token/logout/` не найдена, проверьте этот адрес в *urls.py*'
         )
@@ -67,47 +67,29 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_06_users_username_get_auth(self, user_client, admin):
-        user, moderator = create_users_api(user_client)
-        response = user_client.get(f'/api/users/{admin.username}/')
+    def test_06_users_id_get_auth(self, user_client, admin):
+        #user, moderator = create_users_api(user_client)
+        response = user_client.get(f'/api/users/{admin.id}/')
         assert response.status_code != 404, (
-            'Страница `/api/users/{username}/` не найдена, проверьте этот адрес в *urls.py*'
+            'Страница `/api/users/{id}/` не найдена, проверьте этот адрес в *urls.py*'
         )
         assert response.status_code == 200, (
-            'Проверьте, что при GET запросе `/api/users/{username}/` с токеном авторизации возвращается статус 200'
+            'Проверьте, что при GET запросе `/api/users/{id}/` с токеном авторизации возвращается статус 200'
         )
         response_data = response.json()
         assert response_data.get('username') == admin.username, (
-            'Проверьте, что при GET запросе `/api/users/{username}/` возвращаете `username`.'
+            'Проверьте, что при GET запросе `/api/users/{id}/` возвращаете `username`.'
         )
         assert response_data.get('email') == admin.email, (
-            'Проверьте, что при GET запросе `/api/users/{username}/` возвращаете `email`.'
+            'Проверьте, что при GET запросе `/api/users/{id}/` возвращаете `email`.'
         )
-
-        response = user_client.get(f'/api/users/{moderator.username}/')
-        assert response.status_code == 200, (
-            'Проверьте, что при GET запросе `/api/users/{username}/` с токеном авторизации возвращается статус 200'
+        assert response_data.get('first_name') == admin.first_name, (
+            'Проверьте, что при GET запросе `/api/users/{id}` возвращаете `first_name`.'
         )
-        response_data = response.json()
-        assert response_data.get('username') == moderator.username, (
-            'Проверьте, что при GET запросе `/api/users/{username}/` возвращаете `username`.'
+        assert response_data.get('last_name') == admin.last_name, (
+            'Проверьте, что при GET запросе `/api/users/{id}` возвращаете `last_name`.'
         )
-        assert response_data.get('email') == moderator.email, (
-            'Проверьте, что при GET запросе `/api/users/{username}/` возвращаете `email`.'
-        )
-        assert response_data.get('first_name') == moderator.first_name, (
-            'Проверьте, что при GET запросе `/api/users/` возвращаете `first_name`.'
-        )
-        assert response_data.get('last_name') == moderator.last_name, (
-            'Проверьте, что при GET запросе `/api/users/` возвращаете `last_name`.'
-        )
-        assert response_data.get('bio') == moderator.bio, (
-            'Проверьте, что при GET запросе `/api/users/` возвращаете `bio`.'
-        )
-        assert response_data.get('role') == moderator.role, (
-            'Проверьте, что при GET запросе `/api/users/` возвращаете `role`.'
-        )
-
+    
     @pytest.mark.django_db(transaction=True)
     def test_07_users_username_patch_auth(self, user_client, admin):
         user, moderator = create_users_api(user_client)
