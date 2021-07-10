@@ -45,7 +45,31 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_04_users_post_login(self, client, admin):
+    def test_04_users_set_password(self, client, admin):
+        response = client.get('/api/users/set_password/')
+
+        assert response.status_code != 404, (
+            'Страница `/api/users/set_password/` не найдена, проверьте этот адрес в *urls.py*'
+        )
+
+        assert response.status_code == 401, (
+            'Проверьте, что при GET запросе `/api/users/set_password/` без токена авторизации возвращается статус 401'
+        )
+        data = {
+            'current_password': '1234567',
+            'new_password': 'new_1234567'
+        }
+        response = auth_client(admin).post('/api/users/set_password/', data=data)
+        assert response.status_code == 201, (
+            'Проверьте, что при POST запросе `/api/users/set_password` с правильными данными возвращается статус 201'
+        )
+        response = auth_client(admin).post('/api/users/set_password/', data={})
+        assert response.status_code == 400, (
+            'Проверьте, что при POST запросе `/api/users/set_password` с неправильными данными возвращается статус 400'
+        )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_05_users_post_login(self, client, admin):
         data = {
             'username': admin.username,
             'password': '1234567'
@@ -59,7 +83,7 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_05_users_post_logout(self, user_client):
+    def test_06_users_post_logout(self, user_client):
         response = user_client.post('/api/auth/token/logout/')
         assert response.status_code != 404, (
             'Страница `/api/auth/token/logout/` не найдена, проверьте этот адрес в *urls.py*'
@@ -69,7 +93,7 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_06_users_id_get_auth(self, user_client, admin):
+    def test_07_users_id_get_auth(self, user_client, admin):
         response = user_client.get(f'/api/users/{admin.id}/')
         assert response.status_code != 404, (
             'Страница `/api/users/{id}/` не найдена, проверьте этот адрес в *urls.py*'
@@ -117,13 +141,13 @@ class Test01UserAPI:
         testuser.delete()
 
     @pytest.mark.django_db(transaction=True)
-    def test_07_users_check_permissions(self, user_client, admin):
+    def test_08_users_check_permissions(self, user_client, admin):
         user = create_users_api(user_client)
         self.check_permissions(user, 'обычного пользователя', admin)
         self.check_permissions(admin, 'администратора', admin)
 
     @pytest.mark.django_db(transaction=True)
-    def test_08_users_me_get(self, user_client, admin):
+    def test_09_users_me_get(self, user_client, admin):
         user = create_users_api(user_client)
         response = user_client.get('/api/users/me/')
         assert response.status_code == 200, (
