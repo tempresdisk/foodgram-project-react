@@ -21,3 +21,8 @@ class CustomUser(AbstractUser):
         blank=False,
         help_text=_('Required.')
     )
+
+    class Meta:
+        app_label = 'users'
+        verbose_name = _('Пользователь')
+        verbose_name_plural = _('Пользователи')

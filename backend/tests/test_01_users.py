@@ -102,6 +102,9 @@ class Test01UserAPI:
             'Проверьте, что при GET запросе `/api/users/{id}/` с токеном авторизации возвращается статус 200'
         )
         response_data = response.json()
+        assert response_data.get('id') == admin.id, (
+            'Проверьте, что при GET запросе `/api/users/{id}/` возвращаете `id`.'
+        )
         assert response_data.get('username') == admin.username, (
             'Проверьте, что при GET запросе `/api/users/{id}/` возвращаете `username`.'
         )
@@ -163,6 +166,9 @@ class Test01UserAPI:
             'Проверьте, что при GET запросе `/api/users/me/` с токеном авторизации возвращается статус 200'
         )
         response_data = response.json()
+        assert response_data.get('id') == user.id, (
+            'Проверьте, что при GET запросе `/api/users/me/` возвращаете `id`.'
+        )
         assert response_data.get('username') == user.username, (
             'Проверьте, что при GET запросе `/api/users/me/` возвращаете `username`.'
         )
