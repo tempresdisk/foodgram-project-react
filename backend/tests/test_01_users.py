@@ -47,7 +47,7 @@ class Test01UserAPI:
     @pytest.mark.django_db(transaction=True)
     def test_04_users_post_login(self, client, admin):
         data = {
-            'username': admin.username,
+            'email': admin.email,
             'password': '1234567'
         }
         response = client.post('/api/auth/token/login/', data=data)
