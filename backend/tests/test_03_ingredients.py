@@ -51,3 +51,13 @@ class Test03IngredientAPI:
             'Проверьте, что при GET запросе `/api/ingredients/` возвращаете данные без пагинации. '
             'Найден параметр `results`'
         )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_ingredients_get_filter(self, client, ingredient):
+        name_starts_with = ingredient.name[:3]
+        response = client.get(f'/api/ingredients/?name={name_starts_with}')
+        response_data = response.json()
+        assert response_data[0].get('name') == ingredient.name, (
+            'Проверьте, что при GET запросе `/api/ingredients/?name={query}` возвращается ожидаемый результат.'
+        )
+        
