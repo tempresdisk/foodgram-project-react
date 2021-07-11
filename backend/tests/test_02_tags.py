@@ -33,6 +33,9 @@ class Test02TagAPI:
         assert response_data.get('slug') == tag.slug, (
             'Проверьте, что при GET запросе `/api/tags/{id}/` возвращаете `slug`.'
         )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_03_tags_get_pagination(self, client):
         response = client.get(f'/api/tags/')
         data = response.json()
         assert 'count' not in data, (
