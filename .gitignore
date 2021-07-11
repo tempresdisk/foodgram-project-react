@@ -133,3 +133,4 @@ dmypy.json
 
 .vscode
 static/
+ingredients_loader.py
