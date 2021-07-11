@@ -1,3 +1,4 @@
+from rest_framework import filters
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -17,3 +18,5 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     serializer_class = serializers.IngredientSerializer
     permission_classes = [AllowAny]
     pagination_class = None
+    search_fields = ['^name']
+    filter_backends = (filters.SearchFilter,)
