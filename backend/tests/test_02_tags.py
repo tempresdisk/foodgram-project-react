@@ -33,3 +33,21 @@ class Test02TagAPI:
         assert response_data.get('slug') == tag.slug, (
             'Проверьте, что при GET запросе `/api/tags/{id}/` возвращаете `slug`.'
         )
+        response = client.get(f'/api/tags/')
+        data = response.json()
+        assert 'count' not in data, (
+            'Проверьте, что при GET запросе `/api/tags/` возвращаете данные без пагинации. '
+            'Найден параметр `count`'
+        )
+        assert 'next' not in data, (
+            'Проверьте, что при GET запросе `/api/tags/` возвращаете данные без пагинации. '
+            'Найден параметр `next`'
+        )
+        assert 'previous' not in data, (
+            'Проверьте, что при GET запросе `/api/tags/` возвращаете данные без пагинации. '
+            'Найден параметр `previous`'
+        )
+        assert 'results' not in data, (
+            'Проверьте, что при GET запросе `/api/tags/` возвращаете данные без пагинации. '
+            'Найден параметр `results`'
+        )

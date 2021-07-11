@@ -184,3 +184,28 @@ class Test01UserAPI:
         assert response_data.get('password') == None, (
             'Проверьте, что при GET запросе `/api/users/me/` не возвращаете `password`.'
         )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_10_users_get_pagination(self, user_client):
+        response = user_client.get('/api/users/')
+        data = response.json()
+        assert 'count' in data, (
+            'Проверьте, что при GET запросе `/api/users/` возвращаете данные с пагинацией. '
+            'Не найден параметр `count`'
+        )
+        assert 'next' in data, (
+            'Проверьте, что при GET запросе `/api/users/` возвращаете данные с пагинацией. '
+            'Не найден параметр `next`'
+        )
+        assert 'previous' in data, (
+            'Проверьте, что при GET запросе `/api/users/` возвращаете данные с пагинацией. '
+            'Не найден параметр `previous`'
+        )
+        assert 'results' in data, (
+            'Проверьте, что при GET запросе `/api/users/` возвращаете данные с пагинацией. '
+            'Не найден параметр `results`'
+        )
+        assert type(data['results']) == list, (
+            'Проверьте, что при GET запросе `/api/users/` возвращаете данные с пагинацией. '
+            'Тип параметра `results` должен быть список'
+        )
