@@ -19,6 +19,7 @@ class CustomUser(AbstractUser):
     email = models.EmailField(
         _('email address'),
         blank=False,
+        unique=True,
         help_text=_('Required.')
     )
 
