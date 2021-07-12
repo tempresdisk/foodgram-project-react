@@ -73,7 +73,7 @@ class UserViewSet(viewsets.ModelViewSet):
             if author != user and not user.subscribed_on.filter(author=author).exists():
                 Subscription.objects.create(user=user, author=author)
                 serializer = UserSerializer(author, context={'request': request})
-                return Response(data=serializer.data, status=status.HTTP_200_OK)
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
             data = {
                 "errors":"Вы либо уже подписаны на этого автора, либо пытаетесь подписаться на себя, что невозможно"
             }
