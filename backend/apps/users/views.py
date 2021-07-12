@@ -2,12 +2,14 @@ from django.contrib.auth import get_user_model
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import filters, status, viewsets
 from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from djoser.serializers import SetPasswordSerializer
 
 from .serializers import UserSerializer
 from .permissions import AllowAnyPOST, CurrentUserOrAdmin
+from ..api.models import Subscription
 
 User = get_user_model()
 
@@ -57,3 +59,31 @@ class UserViewSet(viewsets.ModelViewSet):
             return self.get_paginated_response(serializer.data)
         serializer = self.get_serializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+    @action(detail=True,
+            methods=['get', 'delete'],
+            permission_classes=[IsAuthenticated])
+    def subscribe(self, request, pk):
+        
+        author = get_object_or_404(User, pk=pk)
+        user = request.user
+
+        if request.method == 'GET':
+            if author != user and not user.subscribed_on.filter(author=author).exists():
+                Subscription.objects.create(user=user, author=author)
+                serializer = UserSerializer(author, context={'request': request})
+                return Response(data=serializer.data, status=status.HTTP_200_OK)
+            data = {
+                "errors":"Вы либо уже подписаны на этого автора, либо пытаетесь подписаться на себя, что невозможно"
+            }
+            return Response(data=data, status=status.HTTP_403_FORBIDDEN)
+
+        if not user.subscribed_on.filter(author=author).exists():
+            data = {
+                "errors":"Вы не подписаны на данного автора (напоминание: на себя подписаться невозможно)"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        Subscription.objects.filter(user=user, author=author).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
