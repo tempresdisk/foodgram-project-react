@@ -24,6 +24,7 @@ class Tag(models.Model):
         app_label = 'api'
         verbose_name = _('Тэг')
         verbose_name_plural = _('Тэги')
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
@@ -32,7 +33,7 @@ class Tag(models.Model):
 class Ingredient(models.Model):
     name = models.CharField(
         verbose_name=_('Название'),
-        blank=True,
+        blank=False,
         max_length=50
     )
     measurement_unit = models.CharField(
@@ -45,6 +46,7 @@ class Ingredient(models.Model):
         app_label = 'api'
         verbose_name = _('Ингредиент')
         verbose_name_plural = _('Ингредиенты')
+        ordering = ('name',)
 
     def __str__(self):
         return self.name
