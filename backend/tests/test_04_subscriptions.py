@@ -20,4 +20,33 @@ class Test04SubscriptionAPI:
         assert response.status_code == 405, (
             'Проверьте, что при POST запросе `/api/users/subscriptions/` возвращается статус 405'
         )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_02_subscriptions_pagination(self, user_client):
+        response = user_client.get(f'/api/users/subscriptions/')
+        data = response.json()
+        assert 'count' in data, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете данные с пагинацией. '
+            'Не найден параметр `count`'
+        )
+        assert 'next' in data, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете данные с пагинацией. '
+            'Не найден параметр `next`'
+        )
+        assert 'previous' in data, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете данные с пагинацией. '
+            'Не найден параметр `previous`'
+        )
+        assert 'results' in data, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете данные с пагинацией. '
+            'Не найден параметр `results`'
+        )
+        assert data['count'] == 0, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете данные с пагинацией. '
+            'Значение параметра `count` не правильное'
+        )
+        assert type(data['results']) == list, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете данные с пагинацией. '
+            'Тип параметра `results` должен быть список'
+        )
         

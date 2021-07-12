@@ -20,10 +20,3 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = None
     filterset_class = IngredientNameFilter
-
-
-class SubscriptionViewSet(ReadOnlyModelViewSet):
-    serializer_class = serializers.SubscriptionSerializer
-
-    def get_queryset(self):
-        return self.request.user.subscribed_on.all()
