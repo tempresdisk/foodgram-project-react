@@ -117,6 +117,9 @@ class Test01UserAPI:
         assert response_data.get('last_name') == admin.last_name, (
             'Проверьте, что при GET запросе `/api/users/{id}` возвращаете `last_name`.'
         )
+        assert response_data.get('is_subscribed') == False, (
+            'Проверьте, что при GET запросе `/api/users/{id}` возвращаете `is_subscribed`.'
+        )
         assert response_data.get('password') == None, (
             'Проверьте, что при GET запросе `/api/users/{id}` не возвращаете `password`.'
         )

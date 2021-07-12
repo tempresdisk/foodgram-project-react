@@ -1,8 +1,11 @@
 from os import name
 from django.db import models
+from django.contrib.auth import get_user_model
 from django.utils.translation import gettext_lazy as _
 
 from .fields import fields
+
+User = get_user_model()
 
 
 class Tag(models.Model):
@@ -50,3 +53,25 @@ class Ingredient(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Subscription(models.Model):
+    user = models.ForeignKey(User,
+                             on_delete=models.CASCADE,
+                             related_name='subscribed_on')
+    author = models.ForeignKey(User,
+                               on_delete=models.CASCADE,
+                               related_name='subscriber')
+
+    class Meta:
+        app_label = 'api'
+        verbose_name = _('Подписка')
+        verbose_name_plural = _('Подписки')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'author'], name='subscribe'
+            )
+        ]
+    
+    def __str__(self):
+        return (f'Подписка {self.user.username} на {self.author.username}')

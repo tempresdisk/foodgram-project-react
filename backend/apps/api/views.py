@@ -1,4 +1,4 @@
-from rest_framework import filters
+from django.contrib.auth import get_user_model
 from rest_framework.permissions import AllowAny
 from rest_framework.viewsets import ReadOnlyModelViewSet
 
@@ -20,3 +20,10 @@ class IngredientViewSet(ReadOnlyModelViewSet):
     permission_classes = [AllowAny]
     pagination_class = None
     filterset_class = IngredientNameFilter
+
+
+class SubscriptionViewSet(ReadOnlyModelViewSet):
+    serializer_class = serializers.SubscriptionSerializer
+
+    def get_queryset(self):
+        return self.request.user.subscribed_on.all()
