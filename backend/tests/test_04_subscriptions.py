@@ -64,7 +64,7 @@ class Test04SubscriptionAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_04_subscriptions_subscribe_logic(self, user_client, admin, test_user):
+    def test_04_subscriptions_subscribe_logic(self, admin, test_user):
         first_client = auth_client(test_user)
         response = first_client.get(f'/api/users/42/subscribe/')
         assert response.status_code == 404, (
@@ -76,13 +76,13 @@ class Test04SubscriptionAPI:
             'Проверьте, что при GET запросе `/api/users/{id}/subscribe/` авторизованным пользователем, '
             '(случай с подпиской на себя) возвращается статус 403'
         )
-        count_subscribed_to = admin.subscribed_on.all().count()
+        count_subscribed_on = admin.subscribed_on.all().count()
         response = first_client.get(f'/api/users/{admin.id}/subscribe/')
         assert response.status_code == 201, (
             'Проверьте, что при GET запросе `/api/users/{id}/subscribe/` авторизованным пользователем, '
             '(случай существующего автора, без подписки) возвращается статус 201'
         )
-        assert test_user.subscribed_on.all().count() == count_subscribed_to + 1, (
+        assert test_user.subscribed_on.all().count() == count_subscribed_on + 1, (
             'Проверьте, что в случае возвращения статуса 201, создаётся запись в базе данных'
         )
         response = first_client.get(f'/api/users/{admin.id}/subscribe/')
@@ -100,6 +100,45 @@ class Test04SubscriptionAPI:
             'Проверьте, что при GET запросе `/api/users/{id}/subscribe/` авторизованным пользователем, '
             '(случай отмены несуществующей подписки) возвращается статус 204'
         )
-        assert test_user.subscribed_on.all().count() == count_subscribed_to, (
+        assert test_user.subscribed_on.all().count() == count_subscribed_on, (
             'Проверьте, что в случае возвращения статуса 204, удаляется запись в базе данных'
+        )
+
+    def create_subscription(self, author, user):
+        first_client = auth_client(user)
+        first_client.get(f'/api/users/{author.id}/subscribe/')
+
+    @pytest.mark.django_db(transaction=True)
+    def test_05_subscriptions_response_fields(self, client, admin, test_user):
+        count_subscribed_on = test_user.subscribed_on.all().count()
+        self.create_subscription(admin, test_user)
+        assert test_user.subscribed_on.all().count() == count_subscribed_on + 1
+        response = auth_client(test_user).get(f'/api/users/subscriptions/')
+        assert response.status_code == 200, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions/` авторизованным пользователем возвращается статус 200'
+        )
+        response_data = response.json().get('results')[0]
+        assert response_data.get('id') == admin.id, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `id`.'
+        )
+        assert response_data.get('username') == admin.username, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `username`.'
+        )
+        assert response_data.get('email') == admin.email, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `email`.'
+        )
+        assert response_data.get('first_name') == admin.first_name, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `first_name`.'
+        )
+        assert response_data.get('last_name') == admin.last_name, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `last_name`.'
+        )
+        assert response_data.get('is_subscribed') == True, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `is_subscribed`.'
+        )
+        assert response_data.get('recipes') == admin.recipes, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `recipes`.'
+        )
+        assert response_data.get('recipes_count') == 0, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `recipes_count`.'
         )
