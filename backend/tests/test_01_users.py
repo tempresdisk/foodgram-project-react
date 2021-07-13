@@ -15,21 +15,22 @@ class Test01UserAPI:
         assert response.status_code != 404, (
             'Страница `/api/users/` не найдена, проверьте этот адрес в *urls.py*'
         )
-
-        assert response.status_code == 401, (
-            'Проверьте, что при GET запросе `/api/users/` без токена авторизации возвращается статус 401'
+        assert response.status_code == 200, (
+            'Проверьте, что при GET запросе `/api/users/` без токена авторизации возвращается статус 200'
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_02_users_id_not_auth(self, client, admin):
+    def test_02_users_id_not_auth(self, client, user_client, admin):
         response = client.get(f'/api/users/{admin.id}/')
-
         assert response.status_code != 404, (
             'Страница `/api/users/{id}/` не найдена, проверьте этот адрес в *urls.py*'
         )
-
         assert response.status_code == 401, (
             'Проверьте, что при GET запросе `/api/users/{id}/` без токена авторизации возвращается статус 401'
+        )
+        response = user_client.get(f'/api/users/{admin.id}/')
+        assert response.status_code == 200, (
+            'Проверьте, что при GET запросе `/api/users/{id}/` авторизованным пользователемё возвращается статус 200'
         )
 
     @pytest.mark.django_db(transaction=True)
@@ -189,8 +190,8 @@ class Test01UserAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_10_users_get_pagination(self, user_client):
-        response = user_client.get('/api/users/')
+    def test_10_users_get_pagination(self, client, admin):
+        response = client.get('/api/users/')
         data = response.json()
         assert 'count' in data, (
             'Проверьте, что при GET запросе `/api/users/` возвращаете данные с пагинацией. '

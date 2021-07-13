@@ -8,7 +8,7 @@ from rest_framework.response import Response
 from djoser.serializers import SetPasswordSerializer
 
 from .serializers import UserSerializer
-from .permissions import AllowAnyPOST, CurrentUserOrAdmin
+from .permissions import CurrentUserOrAdmin,AllowAnyAuthRetrieve
 from ..api.models import Subscription
 
 User = get_user_model()
@@ -16,7 +16,7 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    permission_classes = [AllowAnyPOST]
+    permission_classes = [AllowAnyAuthRetrieve]
 
     def perform_create(self, serializer):
         username = serializer.validated_data['username']

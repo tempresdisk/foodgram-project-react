@@ -66,7 +66,7 @@ class Test04SubscriptionAPI:
     @pytest.mark.django_db(transaction=True)
     def test_04_subscriptions_subscribe_logic(self, admin, test_user):
         first_client = auth_client(test_user)
-        response = first_client.get(f'/api/users/42/subscribe/')
+        response = first_client.get('/api/users/42/subscribe/')
         assert response.status_code == 404, (
             'Проверьте, что при GET запросе `/api/users/{id}/subscribe/` авторизованным пользователем, '
             '(случай с несуществующим пользователем) возвращается статус 404'
@@ -113,7 +113,7 @@ class Test04SubscriptionAPI:
         count_subscribed_on = test_user.subscribed_on.all().count()
         self.create_subscription(admin, test_user)
         assert test_user.subscribed_on.all().count() == count_subscribed_on + 1
-        response = auth_client(test_user).get(f'/api/users/subscriptions/')
+        response = auth_client(test_user).get('/api/users/subscriptions/')
         assert response.status_code == 200, (
             'Проверьте, что при GET запросе `/api/users/subscriptions/` авторизованным пользователем возвращается статус 200'
         )
