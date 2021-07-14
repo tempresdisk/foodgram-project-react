@@ -119,3 +119,59 @@ class Test05RecipeAPI:
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете данные с пагинацией. '
             'Тип параметра `results` должен быть список'
         )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_04_recipes_put(self, client, user_client, user, vodka, pickle, tag):
+        self.create_recipe(user, vodka, pickle, tag)
+        data = {
+            'ingredients': [
+                {'id': vodka.id, 'amount': 1},
+                {'id': pickle.id, 'amount': 100}
+            ],
+            'tags': [tag.id],
+            'image': (b'\x47\x49\x46\x38\x39\x61\x02\x00'
+                      b'\x01\x00\x80\x00\x00\x00\x00\x00'
+                      b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
+                      b'\x00\x00\x00\x2C\x00\x00\x00\x00'
+                      b'\x02\x00\x01\x00\x00\x02\x02\x0C'
+                      b'\x0A\x00\x3B'),
+            'name': 'Test recipe',
+            'text': 'test recipe text',
+            'cooking_time': 5,
+        }
+        recipe_id = user.recipe.first().id
+        response = client.put(f'/api/recipes/{recipe_id}/', data=data)
+        assert response.status_code == 403, (
+            'Проверьте, что при PUT запросе `/api/recipes/{id}/` неавторизованным пользователем '
+            'с правильными данными, возвращается статус 403'
+        )
+        response = user_client.put(f'/api/recipes/{recipe_id}/', data=data)
+        assert response.status_code == 403, (
+            'Проверьте, что при PUT запросе `/api/recipes/{id}/` авторизованным пользователем, не являющегося автором рецепта, '
+            'с правильными данными, возвращается статус 403'
+        )
+        response = auth_client(user).put(f'/api/recipes/{recipe_id}/', data=data)
+        assert response.status_code == 200, (
+            'Проверьте, что при PUT запросе `/api/recipes/{id}/` авторизованным пользователем, являющегося автором рецепта, '
+            'с правильными данными, возвращается статус 200'
+        )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_05_recipes_delete(self, client, user_client, user, vodka, pickle, tag):
+        self.create_recipe(user, vodka, pickle, tag)
+        recipe_id = user.recipe.first().id
+        response = client.delete(f'/api/recipes/{recipe_id}/')
+        assert response.status_code != 404, (
+            'Страница `/api/recipes/{id}` не найдена, проверьте этот адрес в *urls.py*'
+        )
+        assert response.status_code == 403, (
+            'Проверьте, что при DELETE запросе `/api/recipes/{id}/` неавторизованным пользователем возвращается статус 403'
+        )
+        response = user_client.delete(f'/api/recipes/{recipe_id}/')
+        assert response.status_code == 403, (
+            'Проверьте, что при DELETE запросе `/api/recipes/` авторизованным пользователем, не являющегося автором рецепта, возвращается статус 403'
+        )
+        response = auth_client(user).put(f'/api/recipes/{recipe_id}/')
+        assert response.status_code == 204, (
+            'Проверьте, что при DELETE запросе `/api/recipes/{id}/` авторизованным пользователем, являющегося автором рецепта, возвращается статус 204'
+        )
