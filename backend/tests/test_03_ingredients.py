@@ -18,16 +18,16 @@ class Test03IngredientAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_02_ingredients_get(self, client, ingredient):
-        response = client.get(f'/api/ingredients/{ingredient.id}/')
+    def test_02_ingredients_get(self, client, vodka):
+        response = client.get(f'/api/ingredients/{vodka.id}/')
         response_data = response.json()
-        assert response_data.get('id') == ingredient.id, (
+        assert response_data.get('id') == vodka.id, (
             'Проверьте, что при GET запросе `/api/ingredients/{id}/` возвращаете `id`.'
         )
-        assert response_data.get('name') == ingredient.name, (
+        assert response_data.get('name') == vodka.name, (
             'Проверьте, что при GET запросе `/api/ingredients/{id}/` возвращаете `name`.'
         )
-        assert response_data.get('measurement_unit') == ingredient.measurement_unit, (
+        assert response_data.get('measurement_unit') == vodka.measurement_unit, (
             'Проверьте, что при GET запросе `/api/ingredients/{id}/` возвращаете `measurement_unit`.'
         )
 
@@ -53,11 +53,11 @@ class Test03IngredientAPI:
         )
 
     @pytest.mark.django_db(transaction=True)
-    def test_04_ingredients_get_filter(self, client, ingredient):
-        name_starts_with = ingredient.name[:3]
+    def test_04_ingredients_get_filter(self, client, pickle):
+        name_starts_with = pickle.name[:3]
         response = client.get(f'/api/ingredients/?name={name_starts_with}')
         response_data = response.json()
-        assert response_data[0].get('name') == ingredient.name, (
+        assert response_data[0].get('name') == pickle.name, (
             'Проверьте, что при GET запросе `/api/ingredients/?name={query}` возвращается ожидаемый результат.'
         )
         
