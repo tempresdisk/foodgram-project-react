@@ -3,11 +3,20 @@ from django.apps import apps as django_apps
 
 
 @pytest.fixture
-def ingredient():
+def vodka():
     Ingredient = django_apps.get_model('api.Ingredient', require_ready=True)
     Ingredient.objects.create(
-        name='ingredient_fixture', measurement_unit='g'
+        name='водка', measurement_unit='г'
     )
-    ingredient = Ingredient.objects.get(name='ingredient_fixture')
-    return ingredient
-    
+    vodka = Ingredient.objects.get(name='водка')
+    return vodka
+
+
+@pytest.fixture
+def pickle():
+    Ingredient = django_apps.get_model('api.Ingredient', require_ready=True)
+    Ingredient.objects.create(
+        name='огурец маринованный', measurement_unit='г'
+    )
+    pickle = Ingredient.objects.get(name='огурец маринованный')
+    return pickle
