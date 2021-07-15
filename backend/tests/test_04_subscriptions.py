@@ -136,8 +136,12 @@ class Test04SubscriptionAPI:
         assert response_data.get('is_subscribed') == True, (
             'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `is_subscribed`.'
         )
-        assert response_data.get('recipes') == admin.recipes, (
+        assert response_data.get('recipes') == [], (
             'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `recipes`.'
+        )
+        assert type(response_data.get('recipes')) == list, (
+            'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `recipes`. '
+            'Тип параметра `recipes` должен быть список.'
         )
         assert response_data.get('recipes_count') == 0, (
             'Проверьте, что при GET запросе `/api/users/subscriptions` возвращаете `recipes_count`.'

@@ -6,7 +6,7 @@ from .common import auth_client
 class Test05RecipeAPI:
 
     @pytest.mark.django_db(transaction=True)
-    def test_01_recipes_post_get_urls_status(self, client):
+    def test_01_recipes_post_get_urls_status(self, client, tag, vodka, pickle,  test_user):
         response = client.get('/api/recipes/')
         assert response.status_code != 404, (
             'Страница `/api/recipes/` не найдена, проверьте этот адрес в *urls.py*'
@@ -14,16 +14,10 @@ class Test05RecipeAPI:
         assert response.status_code == 200, (
             'Проверьте, что при GET запросе `/api/recipes/` без токена авторизации возвращается статус 200'
         )
-        response = client.post('/api/recipes/', data={})
-        assert response.status_code == 401, (
-            'Проверьте, что при POST запросе `/api/recipes/` без токена авторизации возвращается статус 401'
-        )
-
-    def create_recipe(self, user, ingredient_1, ingredient_2, tag):
         data = {
             'ingredients': [
-                {'id': ingredient_1.id, 'amount': 100},
-                {'id': ingredient_2.id, 'amount': 1}
+                {'id': vodka.id, },#'amount': 100},
+                {'id': pickle.id, }# 'amount': 1}
             ],
             'tags': [tag.id],
             'image': (b'\x47\x49\x46\x38\x39\x61\x02\x00'
@@ -36,7 +30,11 @@ class Test05RecipeAPI:
             'text': 'test recipe text',
             'cooking_time': 3,
         }
-        response = auth_client(user).post('/api/recipes/', data=data)
+        response = client.post('/api/recipes/', data=data)
+        assert response.status_code == 401, (
+            'Проверьте, что при POST запросе `/api/recipes/` без токена авторизации возвращается статус 401'
+        )
+        response = auth_client(test_user).post('/api/recipes/', data=data)
         assert response.status_code == 201, (
             'Проверьте, что при POST запросе `/api/recipes/` авторизованным пользователем '
             'с правильными данными, возвращается статус 201'

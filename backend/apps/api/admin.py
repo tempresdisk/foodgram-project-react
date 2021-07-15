@@ -1,5 +1,6 @@
 from django import forms
 from django.contrib import admin
+from django.utils.html import format_html
 from django.utils.translation import gettext_lazy as _
 
 from . import models
@@ -31,3 +32,19 @@ class SubscriptionAdmin(admin.ModelAdmin):
     list_display = ('user', 'author')
     search_fields = ('user', 'author')
     list_filter = ('user', 'author')
+
+
+@admin.register(models.Recipe)
+class RecipeAdmin(admin.ModelAdmin):
+    list_display = ('author', 'name', 'image_tag')
+    search_fields = ('user', 'author')
+    list_filter = ('author', 'name', 'tags')
+    readonly_fields = ('image_tag',)
+
+    def image_tag(self, instance):
+        return format_html(
+            '<img src="{0}" style="max-width: 40%"/>',
+            instance.image.url
+        )
+
+    image_tag.short_description = 'Предпросмотр изображения'
