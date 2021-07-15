@@ -29,6 +29,13 @@ class RecipeViewSet(mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
                     GenericViewSet):
     queryset = models.Recipe.objects.all()
-    serializer_class = serializers.RecipeSerializer
     permission_classes = [AuthPostRetrieve]
-    # filterset_class = 
+    # filterset_class =
+
+    def get_serializer_class(self):
+        if self.action in ('list', 'retrieve'):
+            return serializers.RecipeReadSerializer
+        return serializers.RecipeWriteSerializer
+
+    def perform_create(self, serializer):
+        return serializer.save(author=self.request.user)

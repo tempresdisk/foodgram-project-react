@@ -20,12 +20,7 @@ class Test05RecipeAPI:
                 {'id': pickle.id, }# 'amount': 1}
             ],
             'tags': [tag.id],
-            'image': (b'\x47\x49\x46\x38\x39\x61\x02\x00'
-                      b'\x01\x00\x80\x00\x00\x00\x00\x00'
-                      b'\xFF\xFF\xFF\x21\xF9\x04\x00\x00'
-                      b'\x00\x00\x00\x2C\x00\x00\x00\x00'
-                      b'\x02\x00\x01\x00\x00\x02\x02\x0C'
-                      b'\x0A\x00\x3B'),
+            'image': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAyADIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD5rooor8DP9oAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==',
             'name': 'Test recipe',
             'text': 'test recipe text',
             'cooking_time': 3,
@@ -40,13 +35,26 @@ class Test05RecipeAPI:
             'с правильными данными, возвращается статус 201'
         )
 
+    def create_recipe(self, user, ingredient_1, ingredient_2, tag):
+        data = {
+            'ingredients': [
+                {'id': ingredient_1.id, },#'amount': 100},
+                {'id': ingredient_2.id, }# 'amount': 1}
+            ],
+            'tags': [tag.id],
+            'image': 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAYABgAAD/2wBDAAIBAQIBAQICAgICAgICAwUDAwMDAwYEBAMFBwYHBwcGBwcICQsJCAgKCAcHCg0KCgsMDAwMBwkODw0MDgsMDAz/2wBDAQICAgMDAwYDAwYMCAcIDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAz/wAARCAAyADIDASIAAhEBAxEB/8QAHwAAAQUBAQEBAQEAAAAAAAAAAAECAwQFBgcICQoL/8QAtRAAAgEDAwIEAwUFBAQAAAF9AQIDAAQRBRIhMUEGE1FhByJxFDKBkaEII0KxwRVS0fAkM2JyggkKFhcYGRolJicoKSo0NTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqDhIWGh4iJipKTlJWWl5iZmqKjpKWmp6ipqrKztLW2t7i5usLDxMXGx8jJytLT1NXW19jZ2uHi4+Tl5ufo6erx8vP09fb3+Pn6/8QAHwEAAwEBAQEBAQEBAQAAAAAAAAECAwQFBgcICQoL/8QAtREAAgECBAQDBAcFBAQAAQJ3AAECAxEEBSExBhJBUQdhcRMiMoEIFEKRobHBCSMzUvAVYnLRChYkNOEl8RcYGRomJygpKjU2Nzg5OkNERUZHSElKU1RVVldYWVpjZGVmZ2hpanN0dXZ3eHl6goOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4uPk5ebn6Onq8vP09fb3+Pn6/9oADAMBAAIRAxEAPwD5rooor8DP9oAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigD/2Q==',
+            'name': 'Test recipe',
+            'text': 'test recipe text',
+            'cooking_time': 3,
+        }
+        auth_client(user).post('/api/recipes/', data=data)
 
     @pytest.mark.django_db(transaction=True)
     def test_02_recipes_response_fields(self, client, test_user, vodka, pickle, tag):
         self.create_recipe(test_user, vodka, pickle, tag)
         response = client.get('/api/recipes/')
         response_data = response.json().get('results')[0]
-        assert response_data.get('id') == test_user.recipe.id, (
+        assert response_data.get('id') == test_user.recipe.first().id, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `id`.'
         )
         assert response_data.get('tags')[0]['id'] == tag.id, (
