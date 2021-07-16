@@ -3,7 +3,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins
 
 from . import models
 from . import serializers
-from .filters import IngredientNameFilter
+from .filters import IngredientNameFilter, TagFilter
 from .permissions import AuthPostRetrieve
 
 
@@ -30,7 +30,7 @@ class RecipeViewSet(mixins.ListModelMixin,
                     GenericViewSet):
     queryset = models.Recipe.objects.all()
     permission_classes = [AuthPostRetrieve]
-    # filterset_class =
+    filterset_class = TagFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
