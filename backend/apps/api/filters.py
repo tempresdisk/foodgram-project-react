@@ -21,7 +21,7 @@ class TagFilter(FilterSet):
         tags = self.request.query_params.getlist('tags')
         return queryset.filter(
             tags__slug__in=tags
-        )
+        ).distinct()
 
     class Meta:
         model = Recipe
