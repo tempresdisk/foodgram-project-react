@@ -67,24 +67,19 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
+    #amount = serializers.SlugRelatedField(slug_field='amount', queryset=models.RecipeIngredient.objects.all(), many=True)
 
     class Meta():
         model = models.Ingredient
-        fields = ('id', 'name', 'measurement_unit')
+        fields = ('id', 'name', 'amount', 'measurement_unit')
         read_only_fields = ('name', 'measurement_unit')
-
-
-# class IngredientWriteSerializer(serializers.ModelSerializer):
-#     id = serializers.IntegerField()
-#     class Meta():
-#         model = models.Ingredient
-#         fields = ('id',)
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     ingredients = IngredientSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+    
 
     class Meta():
         model = models.Recipe

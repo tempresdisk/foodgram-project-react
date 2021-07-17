@@ -20,6 +20,10 @@ class TagAdmin(admin.ModelAdmin):
     }
 
 
+class RecipeIngredientInLine(admin.TabularInline):
+    model = models.RecipeIngredient
+
+
 @admin.register(models.Ingredient)
 class IngredientAdmin(admin.ModelAdmin):
     list_display = ('name', 'measurement_unit')
@@ -39,6 +43,7 @@ class RecipeAdmin(admin.ModelAdmin):
     list_display = ('author', 'name', 'image_tag')
     search_fields = ('user', 'author')
     list_filter = ('author', 'name', 'tags')
+    inlines = [RecipeIngredientInLine]
     readonly_fields = ('image_tag',)
 
     def image_tag(self, instance):
