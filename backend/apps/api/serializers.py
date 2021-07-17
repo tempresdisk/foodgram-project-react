@@ -66,18 +66,19 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
 
     class Meta():
         model = models.Ingredient
         fields = ('id', 'name', 'measurement_unit')
-        read_only_fields = ('id', 'name', 'measurement_unit')
+        read_only_fields = ('name', 'measurement_unit')
 
 
-class IngredientWriteSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
-    class Meta():
-        model = models.Ingredient
-        fields = ('id',)
+# class IngredientWriteSerializer(serializers.ModelSerializer):
+#     id = serializers.IntegerField()
+#     class Meta():
+#         model = models.Ingredient
+#         fields = ('id',)
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -93,14 +94,14 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     image = Base64ImageField(max_length=None, use_url=True)
-    ingredients = IngredientWriteSerializer(many=True)
+    ingredients = IngredientSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=models.Tag.objects.all(), many=True
     )
 
     class Meta():
         model = models.Recipe
-        fields = ('id', 'author', 'image', 'ingredients', 'tags', 'cooking_time')
+        fields = ('id', 'author', 'name', 'text', 'image', 'ingredients', 'tags', 'cooking_time')
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -112,3 +113,20 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         for tag in tags_data:
             recipe.tags.add(tag)
         return recipe
+
+    def update(self, instance, validated_data):
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+
+        instance.name = validated_data.get('name')
+        instance.text = validated_data.get('text')
+        instance.image = validated_data.get('image')
+        instance.cooking_time = validated_data.get('cooking_time')
+        
+        for ingredient in ingredients_data:
+            instance.ingredients.add(ingredient['id'])
+        for tag in tags_data:
+            instance.tags.add(tag)
+
+        instance.save()
+        return instance
