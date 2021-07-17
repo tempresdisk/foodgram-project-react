@@ -29,6 +29,7 @@ class RecipeViewSet(mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
                     GenericViewSet):
     queryset = models.Recipe.objects.all()
+    #serializer_class = serializers.RecipeSerializer
     permission_classes = [AuthPostRetrieve]
     filterset_class = TagFilter
 

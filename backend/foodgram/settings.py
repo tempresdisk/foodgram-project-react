@@ -91,7 +91,7 @@ AUTH_USER_MODEL = 'users.CustomUser'
 
 
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', default='ru-Ru')
 
 TIME_ZONE = 'UTC'
 
@@ -107,11 +107,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-
-EMAIL_BACKEND = 'django.core.mail.backends.filebased.EmailBackend'
-
-EMAIL_FILE_PATH = os.path.join(BASE_DIR, 'sent_emails')
-
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [

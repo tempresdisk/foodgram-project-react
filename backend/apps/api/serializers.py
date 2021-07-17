@@ -62,13 +62,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta():
         model = models.Tag
         fields = ('id', 'name', 'color', 'slug')
-
-
-class TagWriteSerializer(serializers.ModelSerializer):
-
-    class Meta():
-        model = models.Tag
-        fields = ('id',)
+        #read_only_fields = ('name', 'color', 'slug')
 
 
 class IngredientSerializer(serializers.ModelSerializer):
@@ -76,13 +70,14 @@ class IngredientSerializer(serializers.ModelSerializer):
     class Meta():
         model = models.Ingredient
         fields = ('id', 'name', 'measurement_unit')
+        read_only_fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientWriteSerializer(serializers.ModelSerializer):
-
+    id = serializers.IntegerField()
     class Meta():
         model = models.Ingredient
-        fields = ('id', 'name')
+        fields = ('id',)
 
 
 class RecipeReadSerializer(serializers.ModelSerializer):
@@ -99,8 +94,25 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     image = Base64ImageField(max_length=None, use_url=True)
     ingredients = IngredientWriteSerializer(many=True)
-    tags = TagWriteSerializer(many=True)
+    tags = serializers.PrimaryKeyRelatedField(
+        queryset=models.Tag.objects.all(), many=True
+    )
 
     class Meta():
         model = models.Recipe
         fields = '__all__'#('id', 'author', 'ingredients', 'tags', 'cooking_time')
+
+    def create(self, validated_data):
+        print(self.context['request'].data['ingredients'])
+        print(self.data)
+        print(validated_data)
+        ingredients_data = validated_data.pop('ingredients')
+        tags_data = validated_data.pop('tags')
+        recipe = models.Recipe.objects.create(**validated_data)
+
+        for ingredient in ingredients_data:
+            #ingredient, created = models.Ingredient.objects.get_or_create(id=ingredient['id'])
+            recipe.ingredients.add(ingredient['id'])
+        for tag in tags_data:
+            recipe.tags.add(tag)
+        return recipe
