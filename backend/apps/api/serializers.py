@@ -100,18 +100,14 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = models.Recipe
-        fields = '__all__'#('id', 'author', 'ingredients', 'tags', 'cooking_time')
+        fields = ('id', 'author', 'image', 'ingredients', 'tags', 'cooking_time')
 
     def create(self, validated_data):
-        print(self.context['request'].data['ingredients'])
-        print(self.data)
-        print(validated_data)
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = models.Recipe.objects.create(**validated_data)
 
         for ingredient in ingredients_data:
-            #ingredient, created = models.Ingredient.objects.get_or_create(id=ingredient['id'])
             recipe.ingredients.add(ingredient['id'])
         for tag in tags_data:
             recipe.tags.add(tag)
