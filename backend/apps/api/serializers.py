@@ -62,11 +62,7 @@ class TagSerializer(serializers.ModelSerializer):
     class Meta():
         model = models.Tag
         fields = ('id', 'name', 'color', 'slug')
-        #read_only_fields = ('name', 'color', 'slug')
 
-
-class Amount(serializers.Field):
-    pass
 
 class IngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
@@ -95,7 +91,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = models.Recipe
-        fields = '__all__'#('id', 'author', 'ingredients', 'tags', 'cooking_time')
+        fields = ('id', 'author', 'ingredients', 'tags', 'cooking_time')
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -111,17 +107,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'name', 'text', 'image', 'ingredients', 'tags', 'cooking_time')
 
     def create(self, validated_data):
-        print(validated_data)
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = models.Recipe.objects.create(**validated_data)
 
-        # for ingredient in ingredients_data:
-        #     recipe.ingredients.add(ingredient['id'])
-        #     recipe.ingredients.add(ingredient['amount'])
         for ingredient in ingredients_data:
-            ingredient = ingredient['id']
             amount = ingredient['amount']
+            id = ingredient['id']
+            models.RecipeIngredient.objects.create(
+                ingredient=models.Ingredient.objects.get(id=id),
+                recipe=recipe,amount=amount
+            )
         for tag in tags_data:
             recipe.tags.add(tag)
         return recipe
@@ -136,9 +132,23 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get('cooking_time')
         
         for ingredient in ingredients_data:
-            instance.ingredients.add(ingredient['id'])
+            amount = ingredient['amount']
+            id = ingredient['id']
+            models.RecipeIngredient.objects.create(
+                ingredient=models.Ingredient.objects.get(id=id),
+                recipe=instance,amount=amount
+            )
         for tag in tags_data:
             instance.tags.add(tag)
 
         instance.save()
         return instance
+
+    def to_representation(self, instance):
+        data = RecipeReadSerializer(
+            instance,
+            context={
+                'request': self.context.get('request')
+            }
+        ).data
+        return data
