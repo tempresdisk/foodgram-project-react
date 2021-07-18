@@ -65,9 +65,12 @@ class TagSerializer(serializers.ModelSerializer):
         #read_only_fields = ('name', 'color', 'slug')
 
 
-class IngredientSerializer(serializers.ModelSerializer):
+class Amount(serializers.Field):
+    pass
+
+class IngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
-    #amount = serializers.SlugRelatedField(slug_field='amount', queryset=models.RecipeIngredient.objects.all(), many=True)
+    amount = serializers.SlugRelatedField(slug_field='amount', queryset=models.RecipeIngredient.objects.all(), many=True)
 
     class Meta():
         model = models.Ingredient
@@ -75,9 +78,18 @@ class IngredientSerializer(serializers.ModelSerializer):
         read_only_fields = ('name', 'measurement_unit')
 
 
+class IngredientWriteSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
+    amount = serializers.IntegerField()
+
+    class Meta():
+        model = models.Ingredient
+        fields = ('id', 'amount')
+
+
 class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientSerializer(many=True, read_only=True)
+    ingredients = IngredientReadSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
     
 
@@ -89,7 +101,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 class RecipeWriteSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
     image = Base64ImageField(max_length=None, use_url=True)
-    ingredients = IngredientSerializer(many=True)
+    ingredients = IngredientWriteSerializer(many=True)
     tags = serializers.PrimaryKeyRelatedField(
         queryset=models.Tag.objects.all(), many=True
     )
@@ -99,12 +111,17 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'name', 'text', 'image', 'ingredients', 'tags', 'cooking_time')
 
     def create(self, validated_data):
+        print(validated_data)
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
         recipe = models.Recipe.objects.create(**validated_data)
 
+        # for ingredient in ingredients_data:
+        #     recipe.ingredients.add(ingredient['id'])
+        #     recipe.ingredients.add(ingredient['amount'])
         for ingredient in ingredients_data:
-            recipe.ingredients.add(ingredient['id'])
+            ingredient = ingredient['id']
+            amount = ingredient['amount']
         for tag in tags_data:
             recipe.tags.add(tag)
         return recipe

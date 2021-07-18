@@ -97,7 +97,8 @@ class Recipe(models.Model):
         blank=False
     )
     ingredients = models.ManyToManyField(
-        to=Ingredient,
+        Ingredient,
+        through='RecipeIngredient',
         blank=False,
         related_name='recipe',
         verbose_name=_('Ингредиенты')
@@ -144,6 +145,11 @@ class RecipeIngredient(models.Model):
         app_label = 'api'
         verbose_name = _('Ингредиент-рецепт')
         verbose_name_plural = _('Ингредиент-рецепт')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['recipe', 'ingredient'], name='recipe_ingredient_unique'
+            )
+        ]
     
     def __str__(self):
         return f'Количество {self.ingredient} в рецепте {self.recipe}'
