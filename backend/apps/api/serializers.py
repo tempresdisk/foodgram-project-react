@@ -91,7 +91,7 @@ class RecipeReadSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = models.Recipe
-        fields = ('id', 'author', 'ingredients', 'tags', 'cooking_time')
+        fields = ('id', 'author', 'name', 'text', 'image', 'ingredients', 'tags', 'cooking_time')
 
 
 class RecipeWriteSerializer(serializers.ModelSerializer):
@@ -130,6 +130,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.text = validated_data.get('text')
         instance.image = validated_data.get('image')
         instance.cooking_time = validated_data.get('cooking_time')
+
+        models.RecipeIngredient.objects.filter(recipe=instance).delete()
         
         for ingredient in ingredients_data:
             amount = ingredient['amount']
