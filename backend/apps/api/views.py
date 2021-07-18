@@ -1,4 +1,8 @@
-from rest_framework.permissions import AllowAny
+from rest_framework import status
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.generics import get_object_or_404
+from rest_framework.decorators import action
+from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins
 
 from . import models
@@ -40,3 +44,30 @@ class RecipeViewSet(mixins.ListModelMixin,
 
     def perform_create(self, serializer):
         return serializer.save(author=self.request.user)
+
+    @action(detail=True,
+            methods=['get', 'delete'],
+            permission_classes=[IsAuthenticated])
+    def favorite(self, request, pk):
+        
+        recipe = get_object_or_404(models.Recipe, pk=pk)
+        user = request.user
+
+        if request.method == 'GET':
+            if not user.favourites.filter(recipe=recipe).exists():
+                models.Favourite.objects.create(user=user, recipe=recipe)
+                serializer = serializers.FavouriteSerializer(recipe, context={'request': request})
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            data = {
+                "errors":"Этот рецепт уже есть в избранном"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        if not user.favourites.filter(recipe=recipe).exists():
+            data = {
+                "errors":"Этого рецепта не было в вашем избранном"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        models.Favourite.objects.filter(user=user, recipe=recipe).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

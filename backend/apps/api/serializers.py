@@ -154,3 +154,10 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             }
         ).data
         return data
+
+
+class FavouriteSerializer(serializers.ModelSerializer):
+
+    class Meta():
+        model = models.Recipe
+        fields = ('id', 'name', 'image', 'cooking_time')
