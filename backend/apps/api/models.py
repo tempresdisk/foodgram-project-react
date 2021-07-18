@@ -160,8 +160,8 @@ class Favourite(models.Model):
 
     class Meta:
         app_label = 'api'
-        verbose_name = _('Избранные рецепты')
-        verbose_name_plural = _('Избранный рецепт')
+        verbose_name = _('Избранный рецепт')
+        verbose_name_plural = _('Избранные рецепты')
         constraints = [
             models.UniqueConstraint(
                 fields=['user', 'recipe'], name='user_recept_unique'
@@ -170,3 +170,21 @@ class Favourite(models.Model):
     
     def __str__(self):
         return f'Рецепт {self.recipe} в избранном у {self.user}'
+
+
+class ShoppingCart(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shopping_cart')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='shopping_cart')
+
+    class Meta:
+        app_label = 'api'
+        verbose_name = _('Избранный рецепт')
+        verbose_name_plural = _('Избранные рецепты')
+        constraints = [
+            models.UniqueConstraint(
+                fields=['user', 'recipe'], name='cart_user_recept_unique'
+            )
+        ]
+    
+    def __str__(self):
+        return f'Рецепт {self.recipe} в списке покупок {self.user}'

@@ -71,3 +71,29 @@ class RecipeViewSet(mixins.ListModelMixin,
 
         models.Favourite.objects.filter(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=True,
+            methods=['get', 'delete'],
+            permission_classes=[IsAuthenticated])
+    def shopping_cart(self, request, pk):
+        
+        recipe = get_object_or_404(models.Recipe, pk=pk)
+        user = request.user
+
+        if request.method == 'GET':
+            if not user.shopping_cart.filter(recipe=recipe).exists():
+                models.ShoppingCart.objects.create(user=user, recipe=recipe)
+                serializer = serializers.FavouriteSerializer(recipe, context={'request': request})
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+            data = {
+                "errors":"Этот рецепт уже есть в списке покупок"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+        if not user.shopping_cart.filter(recipe=recipe).exists():
+            data = {
+                "errors":"Этого рецепта не было в вашем списке покупок"
+            }
+            return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
+
+        models.ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
