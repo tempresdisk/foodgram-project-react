@@ -13,7 +13,7 @@ User = get_user_model()
 
 
 class Base64ImageField(serializers.ImageField):
-    
+
     def to_internal_value(self, data):
         if isinstance(data, six.string_types):
             if 'data:' in data and ';base64,' in data:
@@ -43,7 +43,11 @@ class TagSerializer(serializers.ModelSerializer):
 
 class IngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
-    amount = serializers.SlugRelatedField(slug_field='amount', queryset=models.RecipeIngredient.objects.all(), many=True)
+    amount = serializers.SlugRelatedField(
+        slug_field='amount',
+        queryset=models.RecipeIngredient.objects.all(),
+        many=True
+    )
 
     class Meta():
         model = models.Ingredient
@@ -66,10 +70,12 @@ class RecipeReadSerializer(serializers.ModelSerializer):
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
-    
+
     class Meta():
         model = models.Recipe
-        fields = ('id', 'author', 'name', 'text', 'image', 'ingredients', 'tags', 'cooking_time', 'is_favorited', 'is_in_shopping_cart')
+        fields = ('id', 'author', 'name', 'text', 'image',
+                  'ingredients', 'tags', 'cooking_time',
+                  'is_favorited', 'is_in_shopping_cart')
 
     def get_is_favorited(self, obj):
         user = self.context['request'].user
@@ -94,7 +100,8 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
 
     class Meta():
         model = models.Recipe
-        fields = ('id', 'author', 'name', 'text', 'image', 'ingredients', 'tags', 'cooking_time')
+        fields = ('id', 'author', 'name', 'text', 'image',
+                  'ingredients', 'tags', 'cooking_time')
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -106,7 +113,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             id = ingredient['id']
             models.RecipeIngredient.objects.create(
                 ingredient=models.Ingredient.objects.get(id=id),
-                recipe=recipe,amount=amount
+                recipe=recipe, amount=amount
             )
         for tag in tags_data:
             recipe.tags.add(tag)
@@ -122,13 +129,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get('cooking_time')
 
         models.RecipeIngredient.objects.filter(recipe=instance).delete()
-        
+
         for ingredient in ingredients_data:
             amount = ingredient['amount']
             id = ingredient['id']
             models.RecipeIngredient.objects.create(
                 ingredient=models.Ingredient.objects.get(id=id),
-                recipe=instance,amount=amount
+                recipe=instance, amount=amount
             )
         for tag in tags_data:
             instance.tags.add(tag)

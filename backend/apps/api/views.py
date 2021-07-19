@@ -5,7 +5,7 @@ from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins
+from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins  # noqa E501
 from reportlab.pdfgen import canvas
 from reportlab.pdfbase.ttfonts import TTFont  # for cyrillic
 from reportlab.pdfbase import pdfmetrics  # for cyrillic
@@ -52,21 +52,22 @@ class RecipeViewSet(mixins.ListModelMixin,
     @action(detail=True,
             methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
-    def favorite(self, request, pk): 
+    def favorite(self, request, pk):
         recipe = get_object_or_404(models.Recipe, pk=pk)
         user = request.user
         if request.method == 'GET':
             if not user.is_favorited.filter(recipe=recipe).exists():
                 models.Favourite.objects.create(user=user, recipe=recipe)
-                serializer = serializers.FavouriteSerializer(recipe, context={'request': request})
-                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+                serializer = serializers.FavouriteSerializer(
+                    recipe, context={'request': request})
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)  # noqa E501
             data = {
-                "errors":"Этот рецепт уже есть в избранном"
+                'errors': 'Этот рецепт уже есть в избранном'
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         if not user.is_favorited.filter(recipe=recipe).exists():
             data = {
-                "errors":"Этого рецепта не было в вашем избранном"
+                'errors': 'Этого рецепта не было в вашем избранном'
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         models.Favourite.objects.filter(user=user, recipe=recipe).delete()
@@ -81,15 +82,16 @@ class RecipeViewSet(mixins.ListModelMixin,
         if request.method == 'GET':
             if not user.is_in_shopping_cart.filter(recipe=recipe).exists():
                 models.ShoppingCart.objects.create(user=user, recipe=recipe)
-                serializer = serializers.FavouriteSerializer(recipe, context={'request': request})
-                return Response(data=serializer.data, status=status.HTTP_201_CREATED)
+                serializer = serializers.FavouriteSerializer(
+                    recipe, context={'request': request})
+                return Response(data=serializer.data, status=status.HTTP_201_CREATED)  # noqa E501
             data = {
-                "errors":"Этот рецепт уже есть в списке покупок"
+                'errors': 'Этот рецепт уже есть в списке покупок'
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         if not user.is_in_shopping_cart.filter(recipe=recipe).exists():
             data = {
-                "errors":"Этого рецепта не было в вашем списке покупок"
+                'errors': 'Этого рецепта не было в вашем списке покупок'
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
         models.ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
@@ -121,7 +123,7 @@ class RecipeViewSet(mixins.ListModelMixin,
         title = 'СПИСОК ПОКУПОК'
         sub_title = f'{dt.date.today()}'
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file_name}.pdf"'
+        response['Content-Disposition'] = f'attachment; filename="{file_name}.pdf"'  # noqa E501
         pdf = canvas.Canvas(response)
         pdf.setTitle(doc_title)
         pdfmetrics.registerFont(TTFont('Dej', 'DejaVuSans.ttf'))

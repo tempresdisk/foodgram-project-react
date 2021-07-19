@@ -9,7 +9,7 @@ User = get_user_model()
 @admin.register(User)
 class CustomUserAdmin(UserAdmin):
     list_display = ('id', 'username', 'email', 'first_name',
-                    'last_name','is_staff')
+                    'last_name', 'is_staff')
     search_fields = ('username', 'email', 'first_name', 'last_name')
     list_filter = ('username', 'email')
     readonly_fields = ('date_joined', 'last_login')
@@ -31,8 +31,8 @@ class CustomUserAdmin(UserAdmin):
     )
 
     add_fieldsets = (
-        (None, {'classes': ('wide',), 'fields': ('email', 'username', 'first_name', 'last_name',
-         'password1', 'password2')}),
+        (None, {'classes': ('wide',), 'fields': ('email', 'username',
+         'first_name', 'last_name', 'password1', 'password2')}),
     )
 
     def get_form(self, request, obj=None, **kwargs):

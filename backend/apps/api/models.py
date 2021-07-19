@@ -72,15 +72,15 @@ class Subscription(models.Model):
                 fields=['user', 'author'], name='subscribe'
             )
         ]
-    
+
     def __str__(self):
         return (f'Подписка {self.user.username} на {self.author.username}')
 
 
 class Recipe(models.Model):
     author = models.ForeignKey(User,
-                             on_delete=models.CASCADE,
-                             related_name='recipe')
+                               on_delete=models.CASCADE,
+                               related_name='recipe')
     name = models.CharField(
         verbose_name=_('Название'),
         max_length=30,
@@ -110,7 +110,7 @@ class Recipe(models.Model):
     )
     cooking_time = models.PositiveIntegerField(
         validators=[
-            validators.MinValueValidator(1, message='минимальное время готовки 1 минута')
+            validators.MinValueValidator(1, message='минимальное время готовки 1 минута')  # noqa E501
         ],
         blank=False,
         verbose_name=_('Время приготовления в минутах')
@@ -120,7 +120,7 @@ class Recipe(models.Model):
         app_label = 'api'
         verbose_name = _('Рецепт')
         verbose_name_plural = _('Рецепты')
-    
+
     def __str__(self):
         return self.name
 
@@ -146,17 +146,25 @@ class RecipeIngredient(models.Model):
         verbose_name_plural = _('Ингредиент-рецепт')
         constraints = [
             models.UniqueConstraint(
-                fields=['recipe', 'ingredient'], name='recipe_ingredient_unique'
+                fields=['recipe', 'ingredient'], name='recipe_ingredient_unique'  # noqa E501
             )
         ]
-    
+
     def __str__(self):
         return f'Количество {self.ingredient} в рецепте {self.recipe}'
 
 
 class Favourite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='is_favorited')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='is_favorited')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='is_favorited'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='is_favorited'
+    )
 
     class Meta:
         app_label = 'api'
@@ -167,14 +175,22 @@ class Favourite(models.Model):
                 fields=['user', 'recipe'], name='user_recept_unique'
             )
         ]
-    
+
     def __str__(self):
         return f'Рецепт {self.recipe} в избранном у {self.user}'
 
 
 class ShoppingCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='is_in_shopping_cart')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='is_in_shopping_cart')
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='is_in_shopping_cart'
+    )
+    recipe = models.ForeignKey(
+        Recipe,
+        on_delete=models.CASCADE,
+        related_name='is_in_shopping_cart'
+    )
 
     class Meta:
         app_label = 'api'
@@ -185,6 +201,6 @@ class ShoppingCart(models.Model):
                 fields=['user', 'recipe'], name='cart_user_recept_unique'
             )
         ]
-    
+
     def __str__(self):
         return f'Рецепт {self.recipe} в списке покупок {self.user}'

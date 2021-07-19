@@ -1,6 +1,5 @@
 import os
 from dotenv import load_dotenv
-from datetime import timedelta
 
 load_dotenv()
 
@@ -13,7 +12,7 @@ DEBUG = True
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'web']
 
 CORS_ORIGIN_ALLOW_ALL = True
-#CORS_ORIGIN_WHITELIST = []  # добавить IP, доменное имя своей ВМ
+# CORS_ORIGIN_WHITELIST = []  # добавить IP, доменное имя своей ВМ ?
 CORS_URLS_REGEX = r'^/api/.*$'
 
 
@@ -91,8 +90,6 @@ AUTH_PASSWORD_VALIDATORS = [
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
-
-
 LANGUAGE_CODE = os.environ.get('LANGUAGE_CODE', default='ru-Ru')
 
 TIME_ZONE = 'UTC'
@@ -112,7 +109,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated', 
+        'rest_framework.permissions.IsAuthenticated',
     ],
 
     'DEFAULT_AUTHENTICATION_CLASSES': [
