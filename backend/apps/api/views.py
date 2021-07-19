@@ -1,9 +1,14 @@
+import datetime as dt
+from django.http.response import HttpResponse
 from rest_framework import status
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import get_object_or_404
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins
+from reportlab.pdfgen import canvas
+from reportlab.pdfbase.ttfonts import TTFont  # for cyrillic
+from reportlab.pdfbase import pdfmetrics  # for cyrillic
 
 from . import models
 from . import serializers
@@ -33,7 +38,6 @@ class RecipeViewSet(mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
                     GenericViewSet):
     queryset = models.Recipe.objects.all()
-    #serializer_class = serializers.RecipeSerializer
     permission_classes = [AuthPostRetrieve]
     filterset_class = RecipeFilter
 
@@ -48,11 +52,9 @@ class RecipeViewSet(mixins.ListModelMixin,
     @action(detail=True,
             methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
-    def favorite(self, request, pk):
-        
+    def favorite(self, request, pk): 
         recipe = get_object_or_404(models.Recipe, pk=pk)
         user = request.user
-
         if request.method == 'GET':
             if not user.is_favorited.filter(recipe=recipe).exists():
                 models.Favourite.objects.create(user=user, recipe=recipe)
@@ -62,13 +64,11 @@ class RecipeViewSet(mixins.ListModelMixin,
                 "errors":"Этот рецепт уже есть в избранном"
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-
         if not user.is_favorited.filter(recipe=recipe).exists():
             data = {
                 "errors":"Этого рецепта не было в вашем избранном"
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-
         models.Favourite.objects.filter(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -76,10 +76,8 @@ class RecipeViewSet(mixins.ListModelMixin,
             methods=['get', 'delete'],
             permission_classes=[IsAuthenticated])
     def shopping_cart(self, request, pk):
-        
         recipe = get_object_or_404(models.Recipe, pk=pk)
         user = request.user
-
         if request.method == 'GET':
             if not user.is_in_shopping_cart.filter(recipe=recipe).exists():
                 models.ShoppingCart.objects.create(user=user, recipe=recipe)
@@ -94,6 +92,52 @@ class RecipeViewSet(mixins.ListModelMixin,
                 "errors":"Этого рецепта не было в вашем списке покупок"
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-
         models.ShoppingCart.objects.filter(user=user, recipe=recipe).delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
+
+    @action(detail=False,
+            methods=['get'],
+            permission_classes=[IsAuthenticated])
+    def download_shopping_cart(self, request):
+        user = request.user
+        shopping_cart = user.is_in_shopping_cart.all()
+        shopping_list = {}
+        for item in shopping_cart:
+            recipe = item.recipe
+            ingredients = models.RecipeIngredient.objects.filter(recipe=recipe)
+            for ingredient in ingredients:
+                name = ingredient.ingredient.name
+                measurement_unit = ingredient.ingredient.measurement_unit
+                amount = ingredient.amount
+                if name not in shopping_list:
+                    shopping_list[name] = {
+                        'measurement_unit': measurement_unit,
+                        'amount': amount
+                    }
+                else:
+                    shopping_list[name]['amount'] += amount
+        file_name = 'СПИСОК ПОКУПОК'
+        doc_title = 'СПИСОК ПОКУПОК ДЛЯ РЕЦЕПТОВ'
+        title = 'СПИСОК ПОКУПОК'
+        sub_title = f'{dt.date.today()}'
+        response = HttpResponse(content_type='application/pdf')
+        response['Content-Disposition'] = f'attachment; filename="{file_name}.pdf"'
+        pdf = canvas.Canvas(response)
+        pdf.setTitle(doc_title)
+        pdfmetrics.registerFont(TTFont('Dej', 'DejaVuSans.ttf'))
+        pdf.setFont('Dej', 24)
+        pdf.drawCentredString(300, 770, title)
+        pdf.setFont('Dej', 16)
+        pdf.drawCentredString(290, 720, sub_title)
+        pdf.line(30, 710, 550, 710)
+        height = 670
+        for name, data in shopping_list.items():
+            pdf.drawString(
+                50,
+                height,
+                f"{name} - {data['amount']} {data['measurement_unit']}"
+            )
+            height -= 25
+        pdf.showPage()
+        pdf.save()
+        return response
