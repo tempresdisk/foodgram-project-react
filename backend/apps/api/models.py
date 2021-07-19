@@ -155,8 +155,8 @@ class RecipeIngredient(models.Model):
 
 
 class Favourite(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='favourites')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='favourites')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='is_favorited')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='is_favorited')
 
     class Meta:
         app_label = 'api'

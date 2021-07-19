@@ -54,7 +54,7 @@ class RecipeViewSet(mixins.ListModelMixin,
         user = request.user
 
         if request.method == 'GET':
-            if not user.favourites.filter(recipe=recipe).exists():
+            if not user.is_favorited.filter(recipe=recipe).exists():
                 models.Favourite.objects.create(user=user, recipe=recipe)
                 serializer = serializers.FavouriteSerializer(recipe, context={'request': request})
                 return Response(data=serializer.data, status=status.HTTP_201_CREATED)
@@ -63,7 +63,7 @@ class RecipeViewSet(mixins.ListModelMixin,
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
 
-        if not user.favourites.filter(recipe=recipe).exists():
+        if not user.is_favorited.filter(recipe=recipe).exists():
             data = {
                 "errors":"Этого рецепта не было в вашем избранном"
             }
