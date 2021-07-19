@@ -80,7 +80,7 @@ class Subscription(models.Model):
 class Recipe(models.Model):
     author = models.ForeignKey(User,
                                on_delete=models.CASCADE,
-                               related_name='recipe')
+                               related_name='recipes')
     name = models.CharField(
         verbose_name=_('Название'),
         max_length=30,

@@ -6,7 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from djoser.serializers import SetPasswordSerializer
 
-from .serializers import UserSerializer
+from .serializers import UserSerializer, SubscriptionSerializer
 from .permissions import CurrentUserOrAdmin, AllowAnyAuthRetrieve
 from ..api.models import Subscription
 
@@ -55,9 +55,13 @@ class UserViewSet(viewsets.ModelViewSet):
         queryset = [subscription.author for subscription in request.user.subscribed_on.all()]  # noqa E501
         page = self.paginate_queryset(queryset)
         if page is not None:
-            serializer = self.get_serializer(page, many=True)
+            serializer = SubscriptionSerializer(
+                page, many=True, context={'request': request}
+            )
             return self.get_paginated_response(serializer.data)
-        serializer = self.get_serializer(queryset, many=True)
+        serializer = SubscriptionSerializer(
+            page, many=True, context={'request': request}
+        )
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True,
