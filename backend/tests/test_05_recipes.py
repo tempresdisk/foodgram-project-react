@@ -54,7 +54,7 @@ class Test05RecipeAPI:
         self.create_recipe(test_user, vodka, pickle, tag)
         response = client.get('/api/recipes/')
         response_data = response.json().get('results')[0]
-        assert response_data.get('id') == test_user.recipe.first().id, (
+        assert response_data.get('id') == test_user.recipes.first().id, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `id`.'
         )
         assert response_data.get('tags')[0]['id'] == tag.id, (
@@ -84,16 +84,16 @@ class Test05RecipeAPI:
         assert response_data.get('is_in_shopping_cart') == False, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `is_in_shopping_cart`.'
         )
-        assert response_data.get('name') == test_user.recipe.first().name, (
+        assert response_data.get('name') == test_user.recipes.first().name, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `name`.'
         )
-        assert response_data.get('image') == test_user.recipe.first().image, (
+        assert response_data.get('image') == test_user.recipes.first().image, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `image`.'
         )
-        assert response_data.get('text') == test_user.recipe.first().text, (
+        assert response_data.get('text') == test_user.recipes.first().text, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `text`.'
         )
-        assert response_data.get('cooking_time') == test_user.recipe.first().cooking_time, (
+        assert response_data.get('cooking_time') == test_user.recipes.first().cooking_time, (
             'Проверьте, что при GET запросе `/api/recipes/` возвращаете `cooking_time`.'
         )
 
@@ -145,7 +145,7 @@ class Test05RecipeAPI:
             'text': 'test recipe text',
             'cooking_time': 5,
         }
-        recipe_id = test_user.recipe.first().id
+        recipe_id = test_user.recipes.first().id
         response = client.put(f'/api/recipes/{recipe_id}/', data=data)
         assert response.status_code == 403, (
             'Проверьте, что при PUT запросе `/api/recipes/{id}/` неавторизованным пользователем '
@@ -165,7 +165,7 @@ class Test05RecipeAPI:
     @pytest.mark.django_db(transaction=True)
     def test_05_recipes_delete(self, client, user_client, test_user, vodka, pickle, tag):
         self.create_recipe(test_user, vodka, pickle, tag)
-        recipe_id = test_user.recipe.first().id
+        recipe_id = test_user.recipes.first().id
         response = client.delete(f'/api/recipes/{recipe_id}/')
         assert response.status_code != 404, (
             'Страница `/api/recipes/{id}` не найдена, проверьте этот адрес в *urls.py*'
