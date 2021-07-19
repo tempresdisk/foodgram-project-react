@@ -15,7 +15,6 @@ class SubRecipeSerializer(serializers.ModelSerializer):
 
 class UserSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    recipes_count = serializers.SerializerMethodField()
 
     class Meta:
         fields = ('id', 'username', 'email', 'first_name',
