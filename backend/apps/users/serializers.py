@@ -33,7 +33,7 @@ class UserSerializer(serializers.ModelSerializer):
 
 class SubscriptionSerializer(serializers.ModelSerializer):
     is_subscribed = serializers.SerializerMethodField()
-    recipes = SubRecipeSerializer(many=True, read_only=True)
+    recipes = serializers.SerializerMethodField()
     recipes_count = serializers.SerializerMethodField()
 
     class Meta:
@@ -49,6 +49,15 @@ class SubscriptionSerializer(serializers.ModelSerializer):
         if not user.is_authenticated:
             return False
         return obj.subscriber.filter(user=user).exists()
+
+    def get_recipes(self, obj):
+        request = self.context['request']
+        limit = int(request.query_params.get('recipes_limit', 3))
+        recipes = obj.recipes.all()[:limit]
+        serializer = SubRecipeSerializer(
+            recipes, many=True, context={'request': request}
+        )
+        return serializer.data
 
     def get_recipes_count(self, obj):
         return obj.recipes.all().count()
