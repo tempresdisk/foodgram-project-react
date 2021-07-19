@@ -38,11 +38,8 @@ class SubscriptionSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = ('id', 'username', 'email', 'first_name',
-                  'last_name', 'is_subscribed', 'password', 'recipes', 'recipes_count')
+                  'last_name', 'is_subscribed', 'recipes', 'recipes_count')
         model = User
-        extra_kwargs = {
-            'password': {'write_only': True}
-        }
 
     def get_is_subscribed(self, obj):
         user = self.context['request'].user
