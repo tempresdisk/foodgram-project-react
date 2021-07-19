@@ -173,8 +173,8 @@ class Favourite(models.Model):
 
 
 class ShoppingCart(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='shopping_cart')
-    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='shopping_cart')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='is_in_shopping_cart')
+    recipe = models.ForeignKey(Recipe, on_delete=models.CASCADE, related_name='is_in_shopping_cart')
 
     class Meta:
         app_label = 'api'

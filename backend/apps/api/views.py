@@ -7,7 +7,7 @@ from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins
 
 from . import models
 from . import serializers
-from .filters import IngredientNameFilter, TagFilter
+from .filters import IngredientNameFilter, RecipeFilter
 from .permissions import AuthPostRetrieve
 
 
@@ -35,7 +35,7 @@ class RecipeViewSet(mixins.ListModelMixin,
     queryset = models.Recipe.objects.all()
     #serializer_class = serializers.RecipeSerializer
     permission_classes = [AuthPostRetrieve]
-    filterset_class = TagFilter
+    filterset_class = RecipeFilter
 
     def get_serializer_class(self):
         if self.action in ('list', 'retrieve'):
@@ -81,7 +81,7 @@ class RecipeViewSet(mixins.ListModelMixin,
         user = request.user
 
         if request.method == 'GET':
-            if not user.shopping_cart.filter(recipe=recipe).exists():
+            if not user.is_in_shopping_cart.filter(recipe=recipe).exists():
                 models.ShoppingCart.objects.create(user=user, recipe=recipe)
                 serializer = serializers.FavouriteSerializer(recipe, context={'request': request})
                 return Response(data=serializer.data, status=status.HTTP_201_CREATED)
@@ -89,7 +89,7 @@ class RecipeViewSet(mixins.ListModelMixin,
                 "errors":"Этот рецепт уже есть в списке покупок"
             }
             return Response(data=data, status=status.HTTP_400_BAD_REQUEST)
-        if not user.shopping_cart.filter(recipe=recipe).exists():
+        if not user.is_in_shopping_cart.filter(recipe=recipe).exists():
             data = {
                 "errors":"Этого рецепта не было в вашем списке покупок"
             }
