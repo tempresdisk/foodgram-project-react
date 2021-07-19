@@ -37,7 +37,7 @@ class RecipeViewSet(mixins.ListModelMixin,
                     mixins.DestroyModelMixin,
                     mixins.UpdateModelMixin,
                     GenericViewSet):
-    queryset = models.Recipe.objects.all()
+    queryset = models.Recipe.objects.all().order_by('-id')
     permission_classes = [AuthPostRetrieve]
     filterset_class = RecipeFilter
 
