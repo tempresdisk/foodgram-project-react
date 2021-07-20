@@ -14,6 +14,7 @@ from . import models
 from . import serializers
 from .filters import IngredientNameFilter, RecipeFilter
 from .permissions import AuthPostRetrieve, IsAuthorOrReadOnly
+from .pagination import CustomPageSizePagination
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -39,6 +40,7 @@ class RecipeViewSet(mixins.ListModelMixin,
                     GenericViewSet):
     queryset = models.Recipe.objects.all().order_by('-id')
     permission_classes = [AuthPostRetrieve, IsAuthorOrReadOnly]
+    pagination_class = CustomPageSizePagination
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
@@ -131,7 +133,7 @@ class RecipeViewSet(mixins.ListModelMixin,
         pdf.drawCentredString(300, 770, title)
         pdf.setFont('Dej', 16)
         pdf.drawCentredString(290, 720, sub_title)
-        pdf.line(30, 710, 550, 710)
+        pdf.line(30, 710, 565, 710)
         height = 670
         for name, data in shopping_list.items():
             pdf.drawString(
