@@ -42,16 +42,11 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientReadSerializer(serializers.ModelSerializer):
-    amount = serializers.SlugRelatedField(
-        slug_field='amount',
-        queryset=models.RecipeIngredient.objects.all(),
-        many=True
-    )
 
     class Meta():
         model = models.Ingredient
-        fields = ('id', 'name', 'amount', 'measurement_unit')
-        read_only_fields = ('name', 'measurement_unit')
+        fields = ('id', 'name', 'measurement_unit')
+        read_only_fields = ('id', 'name', 'measurement_unit')
 
 
 class IngredientWriteSerializer(serializers.ModelSerializer):
@@ -63,9 +58,20 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'amount')
 
 
+class RecipeIngredientReadSerializer(serializers.ModelSerializer):
+    id = serializers.ReadOnlyField(source='ingredient.id')
+    name = serializers.ReadOnlyField(source='ingredient.name')
+    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')  # noqa E501
+
+    class Meta():
+        model = models.RecipeIngredient
+        fields = ('id', 'name', 'amount', 'measurement_unit')
+        read_only_fields = ('amount',)
+
+
 class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = IngredientReadSerializer(many=True, read_only=True)
+    ingredients = RecipeIngredientReadSerializer(source='amount', many=True)
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
