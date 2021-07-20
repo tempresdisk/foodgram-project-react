@@ -42,7 +42,6 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class IngredientReadSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField()
     amount = serializers.SlugRelatedField(
         slug_field='amount',
         queryset=models.RecipeIngredient.objects.all(),
