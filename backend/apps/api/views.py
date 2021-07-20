@@ -13,7 +13,7 @@ from reportlab.pdfbase import pdfmetrics  # for cyrillic
 from . import models
 from . import serializers
 from .filters import IngredientNameFilter, RecipeFilter
-from .permissions import AuthPostRetrieve
+from .permissions import AuthPostRetrieve, IsAuthorOrReadOnly
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -38,7 +38,7 @@ class RecipeViewSet(mixins.ListModelMixin,
                     mixins.UpdateModelMixin,
                     GenericViewSet):
     queryset = models.Recipe.objects.all().order_by('-id')
-    permission_classes = [AuthPostRetrieve]
+    permission_classes = [AuthPostRetrieve, IsAuthorOrReadOnly]
     filterset_class = RecipeFilter
 
     def get_serializer_class(self):
