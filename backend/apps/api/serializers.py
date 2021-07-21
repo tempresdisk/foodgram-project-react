@@ -34,7 +34,7 @@ class Base64ImageField(serializers.ImageField):
         extension = imghdr.what(file_name, decoded_file)
         if extension == 'jpeg':
             extension = 'jpg'
-        return extension
+        return extension  # noqa R504
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -164,7 +164,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             instance,
             context={'request': self.context.get('request')}
         ).data
-        return data
+        return data  # noqa R504
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
