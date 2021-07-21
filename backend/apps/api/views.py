@@ -1,5 +1,5 @@
-from django.utils import timezone
 from django.http.response import HttpResponse
+from django.utils import timezone
 from reportlab.pdfbase import pdfmetrics  # for cyrillic
 from reportlab.pdfbase.ttfonts import TTFont  # for cyrillic
 from reportlab.pdfgen import canvas
