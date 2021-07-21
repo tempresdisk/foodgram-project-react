@@ -1,20 +1,20 @@
-import datetime as dt
+from django.utils import timezone
 from django.http.response import HttpResponse
-from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
-from rest_framework.generics import get_object_or_404
-from rest_framework.decorators import action
-from rest_framework.response import Response
-from rest_framework.viewsets import ReadOnlyModelViewSet, GenericViewSet, mixins  # noqa E501
-from reportlab.pdfgen import canvas
-from reportlab.pdfbase.ttfonts import TTFont  # for cyrillic
 from reportlab.pdfbase import pdfmetrics  # for cyrillic
+from reportlab.pdfbase.ttfonts import TTFont  # for cyrillic
+from reportlab.pdfgen import canvas
+from rest_framework import status
+from rest_framework.decorators import action
+from rest_framework.generics import get_object_or_404
+from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.viewsets import (GenericViewSet, ReadOnlyModelViewSet,
+                                     mixins)
 
-from . import models
-from . import serializers
+from . import models, serializers
 from .filters import IngredientNameFilter, RecipeFilter
-from .permissions import AuthPostRetrieve, IsAuthorOrReadOnly
 from .pagination import CustomPageSizePagination
+from .permissions import AuthPostRetrieve, IsAuthorOrReadOnly
 
 
 class TagViewSet(ReadOnlyModelViewSet):
@@ -62,7 +62,8 @@ class RecipeViewSet(mixins.ListModelMixin,
                 models.Favourite.objects.create(user=user, recipe=recipe)
                 serializer = serializers.FavouriteSerializer(
                     recipe, context={'request': request})
-                return Response(data=serializer.data, status=status.HTTP_201_CREATED)  # noqa E501
+                return Response(data=serializer.data,
+                                status=status.HTTP_201_CREATED)
             data = {
                 'errors': 'Этот рецепт уже есть в избранном'
             }
@@ -86,7 +87,8 @@ class RecipeViewSet(mixins.ListModelMixin,
                 models.ShoppingCart.objects.create(user=user, recipe=recipe)
                 serializer = serializers.FavouriteSerializer(
                     recipe, context={'request': request})
-                return Response(data=serializer.data, status=status.HTTP_201_CREATED)  # noqa E501
+                return Response(data=serializer.data,
+                                status=status.HTTP_201_CREATED)
             data = {
                 'errors': 'Этот рецепт уже есть в списке покупок'
             }
@@ -123,9 +125,10 @@ class RecipeViewSet(mixins.ListModelMixin,
         file_name = 'СПИСОК ПОКУПОК'
         doc_title = 'СПИСОК ПОКУПОК ДЛЯ РЕЦЕПТОВ'
         title = 'СПИСОК ПОКУПОК'
-        sub_title = f'{dt.date.today()}'
+        sub_title = f'{timezone.now().date()}'
         response = HttpResponse(content_type='application/pdf')
-        response['Content-Disposition'] = f'attachment; filename="{file_name}.pdf"'  # noqa E501
+        content_disposition = f'attachment; filename="{file_name}.pdf"'
+        response['Content-Disposition'] = content_disposition
         pdf = canvas.Canvas(response)
         pdf.setTitle(doc_title)
         pdfmetrics.registerFont(TTFont('Dej', 'DejaVuSans.ttf'))

@@ -1,7 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth import get_user_model
 from django.contrib.auth.admin import UserAdmin
-from django.utils.translation import gettext_lazy as _
 
 User = get_user_model()
 
@@ -18,14 +17,14 @@ class CustomUserAdmin(UserAdmin):
         (None, {
             'fields': ('username', 'password')
         }),
-        (_('Personal info'), {
+        ('Personal info', {
             'fields': ('first_name', 'last_name', 'email')
         }),
-        (_('Permissions'), {
+        ('Permissions', {
             'fields': ('is_active',
                        'is_staff', 'is_superuser', 'groups'),
         }),
-        (_('Important dates'), {
+        ('Important dates', {
             'fields': ('last_login', 'date_joined')
         }),
     )
@@ -57,7 +56,7 @@ class CustomUserAdmin(UserAdmin):
                 'groups',
                 'user_permissions',
             }
-        for f in disabled_fields:
-            if f in form.base_fields:
-                form.base_fields[f].disabled = True
+        for field in disabled_fields:
+            if field in form.base_fields:
+                form.base_fields[field].disabled = True
         return form

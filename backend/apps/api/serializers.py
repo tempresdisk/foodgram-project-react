@@ -1,13 +1,15 @@
 import base64
-import six
-import uuid
 import imghdr
-from django.contrib.auth import get_user_model
-from rest_framework import serializers
-from django.core.files.base import ContentFile
+import uuid
 
-from . import models
+import six
+from django.contrib.auth import get_user_model
+from django.core.files.base import ContentFile
+from rest_framework import serializers
+from rest_framework.generics import get_object_or_404
+
 from ..users.serializers import UserSerializer
+from . import models
 
 User = get_user_model()
 
@@ -24,13 +26,13 @@ class Base64ImageField(serializers.ImageField):
                 self.fail('invalid_image')
             file_name = str(uuid.uuid4())[:12]
             file_extension = self.get_file_extension(file_name, decoded_file)
-            complete_file_name = "%s.%s" % (file_name, file_extension, )
+            complete_file_name = '%s.%s' % (file_name, file_extension, )
             data = ContentFile(decoded_file, name=complete_file_name)
-        return super(Base64ImageField, self).to_internal_value(data)
+        return super().to_internal_value(data)
 
     def get_file_extension(self, file_name, decoded_file):
         extension = imghdr.what(file_name, decoded_file)
-        extension = "jpg" if extension == "jpeg" else extension
+        extension = 'jpg' if extension == 'jpeg' else extension
         return extension
 
 
@@ -56,7 +58,7 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
     class Meta():
         model = models.Ingredient
         fields = ('id', 'amount')
-    
+
     def validate_amount(self, value):
         """
         Check that the value is >= 0
@@ -79,7 +81,7 @@ class RecipeIngredientReadSerializer(serializers.ModelSerializer):
 
 class RecipeReadSerializer(serializers.ModelSerializer):
     author = UserSerializer(read_only=True)
-    ingredients = RecipeIngredientReadSerializer(source='amount', many=True)
+    ingredients = RecipeIngredientReadSerializer(source='amounts', many=True)
     tags = TagSerializer(many=True, read_only=True)
     is_favorited = serializers.SerializerMethodField()
     is_in_shopping_cart = serializers.SerializerMethodField()
@@ -115,13 +117,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = models.Recipe
         fields = ('id', 'author', 'name', 'text', 'image',
                   'ingredients', 'tags', 'cooking_time')
-        extra_kwargs = {
-            'ingredients': {
-                'error_messages': {
-                    'amount': ('Минимальное количество должно быть не менее 0'),
-                }
-            }
-        }
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
@@ -132,7 +127,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             amount = ingredient['amount']
             id = ingredient['id']
             models.RecipeIngredient.objects.create(
-                ingredient=models.Ingredient.objects.get(id=id),
+                ingredient=get_object_or_404(models.Ingredient, id=id),
                 recipe=recipe, amount=amount
             )
         for tag in tags_data:

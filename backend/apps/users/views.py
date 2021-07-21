@@ -1,14 +1,15 @@
 from django.contrib.auth import get_user_model
+from django.shortcuts import get_list_or_404
+from djoser.serializers import SetPasswordSerializer
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from djoser.serializers import SetPasswordSerializer
 
-from .serializers import UserSerializer, SubscriptionSerializer
-from .permissions import CurrentUserOrAdmin, AllowAnyAuthRetrieve
 from ..api.models import Subscription
+from .permissions import AllowAnyAuthRetrieve, CurrentUserOrAdmin
+from .serializers import SubscriptionSerializer, UserSerializer
 
 User = get_user_model()
 
@@ -22,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
         username = serializer.validated_data['username']
         password = serializer.validated_data['password']
         serializer.save()
-        user = User.objects.get(username=username)
+        user = get_object_or_404(User, username=username)
         user.set_password(password)
         user.save()
 
@@ -42,8 +43,8 @@ class UserViewSet(viewsets.ModelViewSet):
             context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
-
-        self.request.user.set_password(serializer.data['new_password'])
+        new_password = serializer.validated_data['new_password']
+        self.request.user.set_password(new_password)
         self.request.user.save()
 
         return Response(status=status.HTTP_201_CREATED)
@@ -52,7 +53,8 @@ class UserViewSet(viewsets.ModelViewSet):
             methods=['get'],
             permission_classes=[IsAuthenticated])
     def subscriptions(self, request):
-        queryset = [subscription.author for subscription in request.user.subscribed_on.all()]  # noqa E501
+        queryset = User.objects.filter(
+            subscriber__user=request.user).order_by('id')
         page = self.paginate_queryset(queryset)
         if page is not None:
             serializer = SubscriptionSerializer(

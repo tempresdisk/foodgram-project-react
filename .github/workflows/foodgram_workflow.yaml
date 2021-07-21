@@ -1,4 +1,4 @@
-name: YaMDB workflow
+name: foodgram-project-react workflow
 
 on: push
 

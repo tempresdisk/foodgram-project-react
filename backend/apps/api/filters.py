@@ -37,7 +37,9 @@ class RecipeFilter(FilterSet):
         bool_dict = {'true': True, 'false': False}
         is_favorited = self.request.query_params.get('is_favorited', False)
         if bool_dict.get(is_favorited, False):
-            return queryset.filter(is_favorited__user=self.request.user).distinct()  # noqa E501
+            return queryset.filter(
+                is_favorited__user=self.request.user
+            ).distinct()
         return queryset
 
     def filter_is_in_shopping_cart(self, queryset, is_in_shopping_cart, slug):
@@ -45,7 +47,11 @@ class RecipeFilter(FilterSet):
         if not user.is_authenticated:
             return queryset
         bool_dict = {'true': True, 'false': False}
-        is_favorited = self.request.query_params.get('is_in_shopping_cart', False)  # noqa E501
+        is_favorited = self.request.query_params.get(
+            'is_in_shopping_cart', False
+        )
         if bool_dict.get(is_favorited, False):
-            return queryset.filter(is_in_shopping_cart__user=self.request.user).distinct()  # noqa E501
+            return queryset.filter(
+                is_in_shopping_cart__user=self.request.user
+            ).distinct()
         return queryset
