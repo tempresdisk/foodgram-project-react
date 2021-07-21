@@ -1,6 +1,12 @@
 version: '3.8'
 
 services:
+  db:
+    image: postgres:12.4
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./.env
   
   frontend:
     build:
@@ -22,14 +28,17 @@ services:
       - ../docs/openapi-schema.yml:/usr/share/nginx/html/api/docs/openapi-schema.yml
         
   web:
-    build: .
+    image: tempresdisk/foodgram:latest
     restart: always
+    depends_on:
+      - db
     volumes:
-      - ./db.sqlite3:/code/db.sqlite3
-      - ./.env:/code/.env
       - static_value:/code/static/
       - media_value:/code/media/
+    env_file:
+    - ./.env
 
 volumes:
+  postgres_data:
   static_value:
   media_value:
