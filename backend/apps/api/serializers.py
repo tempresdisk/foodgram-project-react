@@ -56,6 +56,14 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
     class Meta():
         model = models.Ingredient
         fields = ('id', 'amount')
+    
+    def validate_amount(self, value):
+        """
+        Check that the value is >= 0
+        """
+        if value < 0:
+            raise serializers.ValidationError('amount must be positive.')
+        return value
 
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
@@ -107,6 +115,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         model = models.Recipe
         fields = ('id', 'author', 'name', 'text', 'image',
                   'ingredients', 'tags', 'cooking_time')
+        extra_kwargs = {
+            'ingredients': {
+                'error_messages': {
+                    'amount': ('Минимальное количество должно быть не менее 0'),
+                }
+            }
+        }
 
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')

@@ -136,9 +136,7 @@ class RecipeIngredient(models.Model):
         on_delete=models.CASCADE,
         related_name='amount'
     )
-    amount = models.PositiveIntegerField(
-        validators=[validators.MinValueValidator(1)]
-    )
+    amount = models.PositiveIntegerField()
 
     class Meta:
         app_label = 'api'
