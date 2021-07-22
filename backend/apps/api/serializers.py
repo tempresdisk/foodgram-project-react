@@ -150,7 +150,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             amount = ingredient['amount']
             id = ingredient['id']
             models.RecipeIngredient.objects.create(
-                ingredient=models.Ingredient.objects.get(id=id),
+                ingredient=get_object_or_404(models.Ingredient, id=id),
                 recipe=instance, amount=amount
             )
         for tag in tags_data:
