@@ -1,5 +1,4 @@
 import os
-import sys  # noqa F401
 
 from django.core.wsgi import get_wsgi_application
 
