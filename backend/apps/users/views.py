@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
+from django.shortcuts import redirect
 from djoser import utils
 from djoser.serializers import SetPasswordSerializer
 from rest_framework import status, viewsets
@@ -7,7 +8,6 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from django.shortcuts import redirect
 
 from ..api.models import Subscription
 from .permissions import AllowAnyAuthRetrieve, CurrentUserOrAdmin
