@@ -60,14 +60,6 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
         model = models.Ingredient
         fields = ('id', 'amount')
 
-    def validate_amount(self, value):
-        """
-        Check that the value is >= 0
-        """
-        if value < 0:
-            raise serializers.ValidationError('amount must be positive.')
-        return value
-
 
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
@@ -124,8 +116,16 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
+        ingredients_set = set()
+        for ingredient in ingredients_data:
+            if ingredient['amount'] < 0:
+                raise serializers.ValidationError(
+                    'Количество должно быть >= 0')
+            if ingredient['id'] in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.')
+            ingredients_set.add(ingredient['id'])
         recipe = models.Recipe.objects.create(**validated_data)
-
         for ingredient in ingredients_data:
             amount = ingredient['amount']
             id = ingredient['id']
@@ -146,6 +146,15 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
+        ingredients_set = set()
+        for ingredient in ingredients_data:
+            if ingredient['amount'] < 0:
+                raise serializers.ValidationError(
+                    'Количество должно быть >= 0')
+            if ingredient['id'] in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.')
+            ingredients_set.add(ingredient['id'])
         models.RecipeIngredient.objects.filter(recipe=instance).delete()
         for ingredient in ingredients_data:
             amount = ingredient['amount']
