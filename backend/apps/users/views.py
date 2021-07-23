@@ -51,7 +51,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
-            return redirect('signin/')
+            return redirect('http://178.154.252.191/signin/')
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=False,
