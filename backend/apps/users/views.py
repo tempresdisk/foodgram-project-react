@@ -1,6 +1,4 @@
-from django.conf import settings
 from django.contrib.auth import get_user_model
-from djoser import utils
 from djoser.serializers import SetPasswordSerializer
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -47,9 +45,7 @@ class UserViewSet(viewsets.ModelViewSet):
         new_password = serializer.validated_data['new_password']
         self.request.user.set_password(new_password)
         self.request.user.save()
-        if settings.LOGOUT_ON_PASSWORD_CHANGE:
-            utils.logout_user(self.request)
-        return Response(data={}, status=status.HTTP_201_CREATED)
+        return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=False,
             methods=['get'],
