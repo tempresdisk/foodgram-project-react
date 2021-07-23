@@ -1,12 +1,12 @@
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import IsAuthenticated, SAFE_METHODS
 
 
-class AllowAnyAuthRetrieve(IsAuthenticated):
+class AllowAnyGetPost(IsAuthenticated):
     def has_permission(self, request, view):
-        if request.parser_context['kwargs'].get('pk', False):
-            return super().has_permission(request, view)
-        else:
+        if (request.method in SAFE_METHODS
+                or request.method == 'POST'):
             return True
+        return False
 
 
 class CurrentUserOrAdmin(IsAuthenticated):

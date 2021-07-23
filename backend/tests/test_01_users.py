@@ -25,8 +25,8 @@ class Test01UserAPI:
         assert response.status_code != 404, (
             'Страница `/api/users/{id}/` не найдена, проверьте этот адрес в *urls.py*'
         )
-        assert response.status_code == 401, (
-            'Проверьте, что при GET запросе `/api/users/{id}/` без токена авторизации возвращается статус 401'
+        assert response.status_code == 200, (
+            'Проверьте, что при GET запросе `/api/users/{id}/` без токена авторизации возвращается статус 200'
         )
         response = user_client.get(f'/api/users/{admin.id}/')
         assert response.status_code == 200, (

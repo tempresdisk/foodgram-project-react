@@ -9,7 +9,7 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 
 from ..api.models import Subscription
-from .permissions import AllowAnyAuthRetrieve, CurrentUserOrAdmin
+from .permissions import AllowAnyGetPost, CurrentUserOrAdmin
 from .serializers import SubscriptionSerializer, UserSerializer
 
 User = get_user_model()
@@ -18,7 +18,7 @@ User = get_user_model()
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by('id')
     serializer_class = UserSerializer
-    permission_classes = [AllowAnyAuthRetrieve]
+    permission_classes = [AllowAnyGetPost]
 
     def perform_create(self, serializer):
         username = serializer.validated_data['username']
@@ -47,13 +47,9 @@ class UserViewSet(viewsets.ModelViewSet):
         new_password = serializer.validated_data['new_password']
         self.request.user.set_password(new_password)
         self.request.user.save()
-
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
-        data = {
-            'errors': 'Пароль успешно изменён, обновите страницу'
-        }
-        return Response(data=data, status=status.HTTP_201_CREATED)
+        return Response(data={}, status=status.HTTP_201_CREATED)
 
     @action(detail=False,
             methods=['get'],
