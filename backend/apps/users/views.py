@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.contrib.auth import get_user_model
-from django.shortcuts import redirect
 from djoser import utils
 from djoser.serializers import SetPasswordSerializer
 from rest_framework import status, viewsets
@@ -51,8 +50,8 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
-            return redirect('http://178.154.252.191/signin/')
-        return Response(status=status.HTTP_201_CREATED)
+        data = 'Пароль успешно изменён, обновите страницу.'
+        return Response(data=data, status=status.HTTP_201_CREATED)
 
     @action(detail=False,
             methods=['get'],
