@@ -45,7 +45,7 @@ class UserViewSet(viewsets.ModelViewSet):
         new_password = serializer.validated_data['new_password']
         self.request.user.set_password(new_password)
         self.request.user.save()
-        return Response(status=status.HTTP_201_CREATED)
+        return Response(data={}, status=status.HTTP_201_CREATED)
 
     @action(detail=False,
             methods=['get'],
