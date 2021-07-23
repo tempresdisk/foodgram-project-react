@@ -72,7 +72,9 @@ class IngredientWriteSerializer(serializers.ModelSerializer):
 class RecipeIngredientReadSerializer(serializers.ModelSerializer):
     id = serializers.ReadOnlyField(source='ingredient.id')
     name = serializers.ReadOnlyField(source='ingredient.name')
-    measurement_unit = serializers.ReadOnlyField(source='ingredient.measurement_unit')  # noqa E501
+    measurement_unit = serializers.ReadOnlyField(
+        source='ingredient.measurement_unit'
+    )
 
     class Meta():
         model = models.RecipeIngredient
@@ -138,14 +140,13 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
-
-        instance.name = validated_data.get('name')
-        instance.text = validated_data.get('text')
-        instance.image = validated_data.get('image')
-        instance.cooking_time = validated_data.get('cooking_time')
-
+        instance.name = validated_data.get('name', instance.name)
+        instance.text = validated_data.get('text', instance.text)
+        instance.image = validated_data.get('image', instance.image)
+        instance.cooking_time = validated_data.get(
+            'cooking_time', instance.cooking_time
+        )
         models.RecipeIngredient.objects.filter(recipe=instance).delete()
-
         for ingredient in ingredients_data:
             amount = ingredient['amount']
             id = ingredient['id']
@@ -155,7 +156,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             )
         for tag in tags_data:
             instance.tags.add(tag)
-
         instance.save()
         return instance
 
