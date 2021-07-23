@@ -7,6 +7,7 @@ from rest_framework.decorators import action
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from django.shortcuts import redirect
 
 from ..api.models import Subscription
 from .permissions import AllowAnyAuthRetrieve, CurrentUserOrAdmin
@@ -50,6 +51,7 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
+            return redirect('signin/')
         return Response(status=status.HTTP_201_CREATED)
 
     @action(detail=False,

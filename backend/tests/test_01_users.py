@@ -61,8 +61,8 @@ class Test01UserAPI:
             'new_password': 'new_1234567'
         }
         response = auth_client(admin).post('/api/users/set_password/', data=data)
-        assert response.status_code == 201, (
-            'Проверьте, что при POST запросе `/api/users/set_password` с правильными данными возвращается статус 201'
+        assert response.status_code == 302, (
+            'Проверьте, что при POST запросе `/api/users/set_password` с правильными данными возвращается статус 302'
         )
         response = auth_client(admin).post('/api/users/set_password/', data={})
         assert response.status_code == 400, (
