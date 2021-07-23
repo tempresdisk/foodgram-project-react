@@ -120,6 +120,8 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 6,
 }
 
+LOGOUT_ON_PASSWORD_CHANGE = True
+
 DJOSER = {
     'LOGIN_FIELD': 'email'
 }
