@@ -50,7 +50,9 @@ class UserViewSet(viewsets.ModelViewSet):
 
         if settings.LOGOUT_ON_PASSWORD_CHANGE:
             utils.logout_user(self.request)
-        data = 'Пароль успешно изменён, обновите страницу.'
+        data = {
+            'errors': 'Пароль успешно изменён, обновите страницу'
+        }
         return Response(data=data, status=status.HTTP_201_CREATED)
 
     @action(detail=False,
