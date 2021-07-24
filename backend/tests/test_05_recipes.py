@@ -177,3 +177,46 @@ class Test05RecipeAPI:
         assert response.status_code == 204, (
             'Проверьте, что при DELETE запросе `/api/recipes/{id}/` авторизованным пользователем, являющегося автором рецепта, возвращается статус 204'
         )
+
+    @pytest.mark.django_db(transaction=True)
+    def test_06_recipes_favorite(self, client, user_client, test_user, vodka, pickle, tag):  # `favorite`, that is how it is in redoc
+        self.create_recipe(test_user, vodka, pickle, tag)
+        recipe_id = test_user.recipes.first().id
+        response = client.get(f'/api/recipes/{recipe_id}/favorite/')
+        assert response.status_code != 404, (
+            'Страница `/api/recipes/{id}/favorite/` не найдена, проверьте этот адрес в *urls.py*'
+        )
+        assert response.status_code == 401, (
+            'Проверьте, что GET запросе `/api/recipes/{id}/favorite/` неавторизованным пользователем, возвращается статус 401'
+        )
+        favorites_count = test_user.is_favorited.all().count()
+        response = auth_client(test_user).get(f'/api/recipes/{recipe_id}/favorite/')
+        assert response.status_code == 201, (
+            'Проверьте, что GET запросе `/api/recipes/{id}/favorite/` авторизованным пользователем, возвращается статус 201'
+        )
+        assert test_user.is_favorited.all().count() == favorites_count + 1, (
+            'Проверьте, что GET запросе `/api/recipes/{id}/favorite/` авторизованным пользователем, создаётся новая запись в базе данных'
+        ) 
+        response = auth_client(test_user).get(f'/api/recipes/{recipe_id}/favorite/')
+        assert response.status_code == 400, (
+            'Проверьте, что GET запросе `/api/recipes/{id}/favorite/` тем же авторизованным пользователем, возвращается статус 400 '
+            'Проверка уникальности избранный рецепт + пользователь'
+        )
+        response = client.delete(f'/api/recipes/{recipe_id}/favorite/')
+        assert response.status_code == 401, (
+            'Проверьте, что DELETE запросе `/api/recipes/{id}/favorite/` неавторизованным пользователем, возвращается статус 401'
+        )
+        response = user_client.delete(f'/api/recipes/{recipe_id}/favorite/')
+        assert response.status_code == 400, (
+            'Проверьте, что DELETE запросе `/api/recipes/{id}/favorite/` авторизованным пользователем {id} недобавленного в избранное рецепта, '
+            'возвращается статус 400'
+        )
+        response = auth_client(test_user).delete(f'/api/recipes/{recipe_id}/favorite/')
+        assert response.status_code == 204, (
+            'Проверьте, что DELETE запросе `/api/recipes/{id}/favorite/` авторизованным пользователем {id} добавленного в избранное рецепта, '
+            'возвращается статус 204'
+        )
+        assert test_user.is_favorited.all().count() == favorites_count, (
+            'Проверьте, что DELETE запросе `/api/recipes/{id}/favorite/` авторизованным пользователем {id} добавленного в избранное рецепта, '
+            'удаляется соответствующая запись из базы данных'
+        )
