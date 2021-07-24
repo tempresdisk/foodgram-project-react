@@ -12,7 +12,7 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'testserver', 'web', '178.154.252.191']
 
-CORS_ALLOWED_ORIGINS = ['http://127.0.0.1:8000', 'http://localhost:8000', 'http://178.154.252.191:8000']
+CORS_ORIGIN_WHITELIST = ['http://127.0.0.1:8000', 'http://localhost:8000', 'http://178.154.252.191:8000']
 
 CORS_URLS_REGEX = r'^/api/.*$'
 
