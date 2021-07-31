@@ -34,7 +34,7 @@ class Base64ImageField(serializers.ImageField):
         extension = imghdr.what(file_name, decoded_file)
         if extension == 'jpeg':
             extension = 'jpg'
-        return extension  # noqa R504
+        return extension
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -113,18 +113,24 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         fields = ('id', 'author', 'name', 'text', 'image',
                   'ingredients', 'tags', 'cooking_time')
 
+    def validate_ingredients(self, data):
+        ingredients_set = set()
+        for item in data:
+            amount = item.get('amount')
+            if int(amount) < 0:
+                raise serializers.ValidationError(
+                    'Количество должно быть >= 0'
+                )
+            id = item.get('id')
+            if id in ingredients_set:
+                raise serializers.ValidationError(
+                    'Ингредиент в рецепте не должен повторяться.')
+            ingredients_set.add(id)
+        return data
+
     def create(self, validated_data):
         ingredients_data = validated_data.pop('ingredients')
         tags_data = validated_data.pop('tags')
-        ingredients_set = set()
-        for ingredient in ingredients_data:
-            if ingredient['amount'] < 0:
-                raise serializers.ValidationError(
-                    'Количество должно быть >= 0')
-            if ingredient['id'] in ingredients_set:
-                raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.')
-            ingredients_set.add(ingredient['id'])
         recipe = models.Recipe.objects.create(**validated_data)
         for ingredient in ingredients_data:
             amount = ingredient['amount']
@@ -146,15 +152,6 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
         instance.cooking_time = validated_data.get(
             'cooking_time', instance.cooking_time
         )
-        ingredients_set = set()
-        for ingredient in ingredients_data:
-            if ingredient['amount'] < 0:
-                raise serializers.ValidationError(
-                    'Количество должно быть >= 0')
-            if ingredient['id'] in ingredients_set:
-                raise serializers.ValidationError(
-                    'Ингредиент в рецепте не должен повторяться.')
-            ingredients_set.add(ingredient['id'])
         models.RecipeIngredient.objects.filter(recipe=instance).delete()
         for ingredient in ingredients_data:
             amount = ingredient['amount']
@@ -173,7 +170,7 @@ class RecipeWriteSerializer(serializers.ModelSerializer):
             instance,
             context={'request': self.context.get('request')}
         ).data
-        return data  # noqa R504
+        return data
 
 
 class FavouriteSerializer(serializers.ModelSerializer):
