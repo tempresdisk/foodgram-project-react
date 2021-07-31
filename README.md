@@ -20,6 +20,7 @@ DB_PORT=5432
 Для запуска сервера на локальной машине выполните команды:
 ```
 Первый запуск
+cd backend/
 docker-compose up -d
 после запуска контейнеров
 docker-compose exec web python manage.py migrate
@@ -27,6 +28,7 @@ docker-compose exec web python manage.py createsuperuser
 docker-compose exec web python manage.py collectstatic --no-input
 
 Последующие запуски
+cd backend/
 docker-compose up -d
 
 ```
