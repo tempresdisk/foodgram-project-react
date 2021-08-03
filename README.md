@@ -36,4 +36,6 @@ docker-compose up -d
 Администрирование доступно на странице `/admin`.
 Проект будет запущен и доступен по адресу [localhost](http://localhost).
 
+Ознакомиться с уже развёрнутым проектом можно по адресу [Foodgram](http://178.154.252.191/recipes).
+
 ![Foodgram workflow](https://github.com/tempresdisk/foodgram-project-react/actions/workflows/foodgram_workflow.yaml/badge.svg)
